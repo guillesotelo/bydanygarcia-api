@@ -26,8 +26,8 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "nodemon index.js",
-    "start-pm2": "pm2 start",
+    "start": "pm2 start",
+    "dev": "nodemon index.js",
     "build": "react-app-rewired build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
