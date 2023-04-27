@@ -15,6 +15,20 @@ router.get('/getAll', async (req, res, next) => {
     }
 })
 
+//Get post by ID
+router.get('/getById', async (req, res, next) => {
+    try {
+        const { _id } = req.query
+        const post = await Post.findById(_id)
+        if (!post) return res.status(404).send('Post not found.')
+
+        res.status(200).json(post)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
 //Create new post
 router.post('/create', async (req, res, next) => {
     try {

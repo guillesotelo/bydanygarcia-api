@@ -80,68 +80,6 @@ router.post('/update', verifyToken, async (req, res, next) => {
     }
 })
 
-//Change user password
-router.post('/changePass', async (req, res, next) => {
-    try {
-        const { userEmail, password } = req.body
-        if (!userEmail) res.send(404).send('Wrong parameters')
-
-        const email = decrypt(userEmail)
-
-        const userData = await User.findOne({ email })
-        if (!userData) return res.status(404).send('Email not found')
-
-        const updatedUser = await User.findOneAndUpdate(
-            { email }, { password }, { returnDocument: "after", useFindAndModify: false })
-        if (!updatedUser) return res.status(404).send('Error updating User')
-
-        await transporter.sendMail({
-            from: `"Easy Notes" <${process.env.EMAIL}>`,
-            to: email,
-            subject: 'Your password has been changed',
-            html: `<div style='margin-top: 3vw; text-align: center;'>
-                        <h3 style='text-align: left; font-weight: normal; margin-bottom: 1vw;'>Hello, ${userData.username ? userData.username.split(' ')[0] : ''}!</h3>
-                        <h3 style='font-weight: normal;'>Your password has been changed.</h3>
-                        <h3 style='font-weight: normal;'>If it was a mistake, use <a style='text-decoration: none;' href='${REACT_APP_URL}/changePass?userEmail=${encrypt(userEmail)}'>this link</a> to generate a new one.</h3>
-                        <h5 style='margin: 4px;'><a style='text-decoration: none;' href='${REACT_APP_URL}'>Easy Notes<a/></h5>
-                    </div>`
-        }).catch((err) => console.error('Something went wrong!', err))
-
-        res.status(200).json({ messsage: 'Password updated successfully' })
-
-    } catch (err) {
-        console.error('Something went wrong!', err)
-        res.send(500).send('Server Error')
-    }
-})
-
-//Send Email to reset password
-router.post('/resetByEmail', async (req, res, next) => {
-    try {
-        const { email } = req.body
-        const user = await User.findOne({ email }).exec()
-        if (!user) return res.status(404).json('Email not found')
-
-        await transporter.sendMail({
-            from: `"Easy Notes" <${process.env.EMAIL}>`,
-            to: email,
-            subject: 'Password Reset',
-            html: `<div style='margin-top: 3vw; text-align: center;'>
-                        <h3 style='text-align: left; font-weight: normal; margin-bottom: 1vw;'>Hello, ${user.username ? user.username.split(' ')[0] : ''}!</h3>
-                        <h3 style='font-weight: normal;'>We received a request to update your password.<br/><br/>
-                        Click <a style='text-decoration: none;' href='${REACT_APP_URL}/changePass?userEmail=${encrypt(email)}'>here</a> to reset your password.<br/><br/>
-                        If it wasn't you, just ignore this email. You are the only one who has permission to change your password.</h3>
-                        <h5 style='margin: 4px;'><a style='text-decoration: none;' href='${REACT_APP_URL}'>Easy Notes<a/></h5>
-                    </div>`
-        }).catch((err) => console.error('Something went wrong!', err))
-
-        res.status(200).json({})
-    } catch (err) {
-        console.error('Something went wrong!', err)
-        res.send(500).send('Server Error')
-    }
-})
-
 //Remove User
 router.post('/remove', verifyToken, async (req, res, next) => {
     try {
