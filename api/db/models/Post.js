@@ -10,6 +10,9 @@ const postSchema = new mongoose.Schema({
     description: {
         type: String
     },
+    overlap: {
+        type: String
+    },
     tags: {
         type: String
     },
