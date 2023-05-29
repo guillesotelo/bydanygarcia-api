@@ -31,6 +31,21 @@ const postSchema = new mongoose.Schema({
     type: {
         type: String
     },
+    spaTitle: {
+        type: String
+    },
+    spaSubtitle: {
+        type: String
+    },
+    spaDescription: {
+        type: String
+    },
+    spaOverlap: {
+        type: String
+    },
+    spaRawData: {
+        type: String
+    },
 }, { timestamps: true })
 
 const Post = mongoose.model('Post', postSchema)
