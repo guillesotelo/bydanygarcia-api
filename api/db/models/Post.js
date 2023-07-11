@@ -25,6 +25,9 @@ const postSchema = new mongoose.Schema({
     sideImgs: {
         type: String
     },
+    sideStyles: {
+        type: String
+    },
     imageUrl: {
         type: String
     },
