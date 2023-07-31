@@ -1,4 +1,4 @@
-export const contactEmail = (data, fullName) => `
+const contactEmail = (data, fullName) => `
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -353,3 +353,7 @@ table, td { color: #000000; } #u_body a { color: #161a39; text-decoration: under
 
 </html>
 ` 
+
+module.exports = {
+  contactEmail
+}
