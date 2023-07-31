@@ -49,6 +49,12 @@ const postSchema = new mongoose.Schema({
     spaRawData: {
         type: String
     },
+    html: {
+        type: String
+    },
+    spaHtml: {
+        type: String
+    },
 }, { timestamps: true })
 
 const Post = mongoose.model('Post', postSchema)
