@@ -2,7 +2,7 @@ const dotenv = require('dotenv')
 const express = require('express')
 const router = express.Router()
 const { Subscription } = require('../db/models')
-const transporter = require('../helpers/mailer')
+const { sendContactEmail } = require('../helpers/mailer')
 const { encrypt, decrypt } = require('../helpers')
 const { REACT_APP_URL } = process.env
 const jwt = require('jsonwebtoken')
@@ -26,7 +26,20 @@ router.post('/subscribe', async (req, res, next) => {
     }
 })
 
-//New subscription
+//Send Contact Email
+router.post('/sendContactEmail', async (req, res, next) => {
+    try {
+        const emailRegistered = await sendContactEmail('Dany', req.body, 'guille.sotelo.cloud@gmail.com')
+        if(!emailRegistered) return res.status(404).send(`Email not sent`)
+
+        res.status(201).send(`Subscribed successfully`)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
+//Cancel subscription
 router.post('/cancelSubscription', async (req, res, next) => {
     try {
         const emailRegistered = await Subscription.findOne({ email }).exec()
