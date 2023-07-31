@@ -45,6 +45,24 @@ router.post('/login', async (req, res, next) => {
     }
 })
 
+// Verify user token
+router.post('/verify', async (req, res, next) => {
+    try {
+        const bearerHeader = req.headers['authorization']
+        if (bearerHeader) {
+            const bearerToken = bearerHeader.split(' ')[1]
+            jwt.verify(bearerToken, JWT_SECRET, (error, _) => {
+                if (error) return res.sendStatus(403)
+                res.status(200).json({ token: bearerToken })
+            })
+        } else res.status(403)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.status(500).send('Server Error')
+    }
+})
+
+
 //Create new user / register
 router.post('/create', async (req, res, next) => {
     try {
