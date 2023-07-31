@@ -239,7 +239,7 @@ table, td { color: #000000; } #u_body a { color: #161a39; text-decoration: under
       <td style="overflow-wrap:break-word;word-break:break-word;padding:40px 40px 30px;font-family: 'Open Sans', sans-serif;" align="left">
         
   <div style="font-weight: 400; line-height: 140%; text-align: left; word-wrap: break-word;">
-<p style="font-size: 24px; line-height: 140%; color: #666666">Hola${fullName ? ', ' + fullName.split(' ')[0] : ''}</p>
+<p style="font-size: 24px; line-height: 140%; color: #666666">Hola${fullName ? ', ' + fullName.split(' ')[0] : ''}. Éste es tu mensaje:</p>
 <p style="font-size: 14px; line-height: 140%;"><p style="font-size: 20px; line-height: 25.2px; color: #666666; margin-top: 2rem;"><strong>De: </strong>${data.name} (${data.email})</p></p>
 <p style="font-size: 14px; line-height: 140%;"> </p>
 

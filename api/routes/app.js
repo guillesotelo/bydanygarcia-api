@@ -29,7 +29,7 @@ router.post('/subscribe', async (req, res, next) => {
 //Send Contact Email
 router.post('/sendContactEmail', async (req, res, next) => {
     try {
-        await sendContactEmail('Dany', req.body, 'guille.sotelo.cloud@gmail.com')
+        await sendContactEmail('Dany', req.body, 'danielasangar92@gmail.com')
 
         res.status(201).send(`Subscribed successfully`)
     } catch (err) {
