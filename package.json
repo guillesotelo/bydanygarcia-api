@@ -11,6 +11,7 @@
     "axios": "^0.21.4",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0-rc.12",
+    "chrome-aws-lambda": "^10.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.17.1",
@@ -24,6 +25,7 @@
     "nodemon": "^2.0.12",
     "pm2": "^5.2.2",
     "puppeteer": "^21.2.1",
+    "puppeteer-core": "^21.3.0",
     "serve": "^13.0.2",
     "web-vitals": "^1.1.2"
   },

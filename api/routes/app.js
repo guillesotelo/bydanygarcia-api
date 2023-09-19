@@ -10,7 +10,15 @@ dotenv.config()
 const { JWT_SECRET } = process.env
 const { verifyToken } = require('../helpers')
 const axios = require('axios');
-const puppeteer = require('puppeteer');
+if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+    // running on the Vercel platform.
+    chrome = require('chrome-aws-lambda');
+    puppeteer = require('puppeteer-core');
+} else {
+    // running locally.
+    puppeteer = require('puppeteer');
+}
+
 
 //New subscription
 router.post('/subscribe', async (req, res, next) => {
@@ -60,7 +68,13 @@ router.post('/cancelSubscription', async (req, res, next) => {
 router.post('/scrape-url', async (req, res) => {
     try {
         const { url, selector } = req.body
-        const browser = await puppeteer.launch({ headless: 'always' });
+        const browser = await puppeteer.launch({
+            args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
+            defaultViewport: chrome.defaultViewport,
+            executablePath: await chrome.executablePath,
+            headless: true,
+            ignoreHTTPSErrors: true,
+        });
         const page = await browser.newPage();
 
         await page.goto(url, { waitUntil: 'domcontentloaded' });
@@ -70,7 +84,7 @@ router.post('/scrape-url', async (req, res) => {
             const images = document.querySelectorAll('img');
             return Array.from(images).map((img) => {
                 const url = img.getAttribute('src')
-                if(url.includes('pinimg') && img.width > 75) return url
+                if (url.includes('pinimg') && img.width > 75) return url
                 else return ''
             });
         });
