@@ -9,6 +9,8 @@ const jwt = require('jsonwebtoken')
 dotenv.config()
 const { JWT_SECRET } = process.env
 const { verifyToken } = require('../helpers')
+const axios = require('axios');
+const puppeteer = require('puppeteer');
 
 //New subscription
 router.post('/subscribe', async (req, res, next) => {
@@ -53,5 +55,34 @@ router.post('/cancelSubscription', async (req, res, next) => {
         res.send(500).send('Server Error')
     }
 })
+
+// Scrape URL Page
+router.post('/scrape-url', async (req, res) => {
+    try {
+        const { url, selector } = req.body
+        const browser = await puppeteer.launch({ headless: 'always' });
+        const page = await browser.newPage();
+
+        await page.goto(url, { waitUntil: 'domcontentloaded' });
+
+        // Extract image URLs
+        const imageUrls = await page.evaluate(() => {
+            const images = document.querySelectorAll('img');
+            return Array.from(images).map((img) => {
+                const url = img.getAttribute('src')
+                if(url.includes('pinimg') && img.width > 75) return url
+                else return ''
+            });
+        });
+
+        await browser.close();
+
+        res.json(imageUrls)
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'An error occurred.' });
+    }
+});
 
 module.exports = router
