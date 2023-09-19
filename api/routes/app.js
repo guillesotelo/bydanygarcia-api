@@ -69,6 +69,7 @@ router.post('/scrape-url', async (req, res) => {
     try {
         const { url, selector } = req.body
         const browser = await puppeteer.launch({
+            ignoreDefaultArgs: ['--disable-extensions'],
             args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
             defaultViewport: chrome.defaultViewport,
             executablePath: await chrome.executablePath,
