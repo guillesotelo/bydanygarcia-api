@@ -9,7 +9,6 @@ const jwt = require('jsonwebtoken')
 dotenv.config()
 const { JWT_SECRET } = process.env
 const { verifyToken } = require('../helpers')
-const axios = require('axios');
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
 const chromium = require("@sparticuz/chromium");
 puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
@@ -65,19 +64,22 @@ router.post('/scrape-url', async (req, res) => {
         const { url, selector } = req.body
 
         let browser = null
-        if(fromServer) {
+        if (fromServer) {
+            chromium.setHeadlessMode = true;
+            chromium.setGraphicsMode = false;
+
             browser = await puppeteer.launch({
                 ignoreDefaultArgs: ['--disable-extensions'],
-                args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
+                args: chromium.args,
                 defaultViewport: chromium.defaultViewport,
-                executablePath: await chromium.executablePath,
+                executablePath: await chromium.executablePath(),
                 headless: chromium.headless,
                 ignoreHTTPSErrors: true
             })
         } else {
             browser = await puppeteer.launch({
                 ignoreDefaultArgs: ['--disable-extensions'],
-                args: [ '--hide-scrollbars', '--disable-web-security'],
+                args: ['--hide-scrollbars', '--disable-web-security'],
                 headless: 'always',
                 ignoreHTTPSErrors: true
             })
