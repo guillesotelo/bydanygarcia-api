@@ -36,7 +36,6 @@ const PORT = process.env.PORT || 5000
 connection.on("error", console.error.bind("Connection error: ", console))
 
 connection.once("open", () => {
-  console.log("* Conected successfully to DB *")
   app.listen(PORT, () => console.log(`* Server listening on Port: ${PORT}... *`))
 })
 
