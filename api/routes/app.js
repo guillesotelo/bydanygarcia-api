@@ -11,7 +11,7 @@ const { JWT_SECRET } = process.env
 const { verifyToken } = require('../helpers')
 const axios = require('axios');
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
-chromium = require('chrome-aws-lambda');
+const chromium = require("@sparticuz/chromium");
 puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
 
 
