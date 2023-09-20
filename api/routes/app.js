@@ -9,7 +9,11 @@ const jwt = require('jsonwebtoken')
 dotenv.config()
 const { JWT_SECRET } = process.env
 const { verifyToken } = require('../helpers')
-const { chromium } = require('playwright');
+const axios = require('axios');
+const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
+chromium = require('chrome-aws-lambda');
+puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
+
 
 //New subscription
 router.post('/subscribe', async (req, res, next) => {
@@ -58,13 +62,27 @@ router.post('/cancelSubscription', async (req, res, next) => {
 // Scrape URL Page
 router.post('/scrape-url', async (req, res) => {
     try {
-        const { url, selector } = req.body;
-        const browser = await chromium.launch({
-            args: ['--disable-extensions', '--hide-scrollbars', '--disable-web-security'],
-            ignoreHTTPSErrors: true,
-        });
-        const context = await browser.newContext();
-        const page = await context.newPage();
+        const { url, selector } = req.body
+
+        let browser = null
+        if(fromServer) {
+            browser = await puppeteer.launch({
+                ignoreDefaultArgs: ['--disable-extensions'],
+                args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
+                defaultViewport: chromium.defaultViewport,
+                executablePath: await chromium.executablePath,
+                headless: chromium.headless,
+                ignoreHTTPSErrors: true
+            })
+        } else {
+            browser = await puppeteer.launch({
+                ignoreDefaultArgs: ['--disable-extensions'],
+                args: [ '--hide-scrollbars', '--disable-web-security'],
+                headless: 'always',
+                ignoreHTTPSErrors: true
+            })
+        }
+        const page = await browser.newPage();
 
         await page.goto(url, { waitUntil: 'domcontentloaded' });
 
@@ -72,15 +90,15 @@ router.post('/scrape-url', async (req, res) => {
         const imageUrls = await page.evaluate(() => {
             const images = document.querySelectorAll('img');
             return Array.from(images).map((img) => {
-                const url = img.getAttribute('src');
-                if (url.includes('pinimg') && img.width > 75) return url;
-                else return '';
+                const url = img.getAttribute('src')
+                if (url.includes('pinimg') && img.width > 75) return url
+                else return ''
             });
         });
 
         await browser.close();
 
-        res.json(imageUrls);
+        res.json(imageUrls)
 
     } catch (error) {
         console.error('Error:', error);
