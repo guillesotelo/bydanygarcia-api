@@ -60,9 +60,8 @@ router.post('/cancelSubscription', async (req, res, next) => {
 router.post('/scrape-url', async (req, res) => {
     try {
         const { url, selector } = req.body;
-
+        
         const imageUrls = await scrapePage(url, selector)
-
         res.json(imageUrls);
     } catch (error) {
         console.error('Error:', error);
