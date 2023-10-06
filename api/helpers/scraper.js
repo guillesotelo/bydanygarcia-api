@@ -1,3 +1,5 @@
+const dotenv = require('dotenv')
+dotenv.config()
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
 puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
 
