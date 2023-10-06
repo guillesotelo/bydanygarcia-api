@@ -9,9 +9,7 @@ const jwt = require('jsonwebtoken')
 dotenv.config()
 const { JWT_SECRET } = process.env
 const { verifyToken } = require('../helpers')
-const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
-const chromium = require("@sparticuz/chromium");
-puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
+const { scrapePage } = require('../helpers/scraper')
 
 
 //New subscription
@@ -61,47 +59,11 @@ router.post('/cancelSubscription', async (req, res, next) => {
 // Scrape URL Page
 router.post('/scrape-url', async (req, res) => {
     try {
-        const { url, selector } = req.body
+        const { url, selector } = req.body;
 
-        let browser = null
-        if (fromServer) {
-            chromium.setHeadlessMode = true;
-            chromium.setGraphicsMode = false;
+        const imageUrls = await scrapePage(url, selector)
 
-            browser = await puppeteer.launch({
-                ignoreDefaultArgs: ['--disable-extensions'],
-                args: chromium.args,
-                defaultViewport: chromium.defaultViewport,
-                executablePath: await chromium.executablePath(),
-                headless: chromium.headless,
-                ignoreHTTPSErrors: true
-            })
-        } else {
-            browser = await puppeteer.launch({
-                ignoreDefaultArgs: ['--disable-extensions'],
-                args: ['--hide-scrollbars', '--disable-web-security'],
-                headless: 'always',
-                ignoreHTTPSErrors: true
-            })
-        }
-        const page = await browser.newPage();
-
-        await page.goto(url, { waitUntil: 'domcontentloaded' });
-
-        // Extract image URLs
-        const imageUrls = await page.evaluate(() => {
-            const images = document.querySelectorAll('img');
-            return Array.from(images).map((img) => {
-                const url = img.getAttribute('src')
-                if (url.includes('pinimg') && img.width > 75) return url
-                else return ''
-            });
-        });
-
-        await browser.close();
-
-        res.json(imageUrls)
-
+        res.json(imageUrls);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'An error occurred.' });
