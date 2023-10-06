@@ -55,6 +55,14 @@ const postSchema = new mongoose.Schema({
     spaHtml: {
         type: String
     },
+    published: {
+        type: Boolean,
+        default: false
+    },
+    removed: {
+        type: Boolean,
+        default: false
+    },
 }, { timestamps: true })
 
 const Post = mongoose.model('Post', postSchema)

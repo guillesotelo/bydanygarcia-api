@@ -5,7 +5,12 @@ const { Post } = require('../db/models')
 //Get all posts
 router.get('/getAll', async (req, res, next) => {
     try {
-        const posts = await Post.find().sort({ createdAt: -1 })
+        const posts = await Post.find({
+            $or: [
+                { removed: false },
+                { removed: { $exists: false } }
+            ]
+        }).sort({ createdAt: -1 })
         if (!posts) return res.status(404).send('No posts found.')
 
         res.status(200).json(posts)
