@@ -4,9 +4,28 @@ const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
 puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
 
 const scrapePage = async (url, selector) => {
-    const browser = await puppeteer.launch({
-        headless: 'new', // Use the new headless mode
-    });
+    let browser = null
+    if (fromServer) {
+        chromium.setHeadlessMode = true;
+        chromium.setGraphicsMode = false;
+
+        browser = await puppeteer.launch({
+            ignoreDefaultArgs: ['--disable-extensions'],
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
+            ignoreHTTPSErrors: true
+        })
+    } else {
+        browser = await puppeteer.launch({
+            ignoreDefaultArgs: ['--disable-extensions'],
+            args: ['--hide-scrollbars', '--disable-web-security'],
+            headless: 'always',
+            ignoreHTTPSErrors: true
+        })
+    }
+
     const page = await browser.newPage();
 
     await page.goto(url, { waitUntil: 'domcontentloaded' });
