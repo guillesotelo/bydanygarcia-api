@@ -37,10 +37,7 @@ router.get('/getById', async (req, res, next) => {
 //Create new post
 router.post('/create', async (req, res, next) => {
     try {
-        const postData = { ...req.body }
-        if (postData._id) delete postData._id
-
-        const newPost = await Post.create(postData)
+        const newPost = await Post.create(req.body)
         if (!newPost) return res.status(400).json('Error creating post')
 
         res.status(200).json(newPost)
