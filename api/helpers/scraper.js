@@ -13,8 +13,8 @@ const scrapePage = async (url, selector) => {
         browser = await puppeteer.launch({
             ignoreDefaultArgs: ['--disable-extensions'],
             args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
+            // defaultViewport: chromium.defaultViewport,
+            // executablePath: await chromium.executablePath(),
             headless: 'always',
             ignoreHTTPSErrors: true
         })
