@@ -12,7 +12,7 @@ const scrapePage = async (url, selector) => {
 
         browser = await puppeteer.launch({
             ignoreDefaultArgs: ['--disable-extensions'],
-            args: chromium.args,
+            args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
             defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath(),
             headless: 'always',
@@ -31,18 +31,19 @@ const scrapePage = async (url, selector) => {
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     let imageUrls = []
     let previousHeight
-    
+
     while (true) {
         const currentHeight = await page.evaluate(() => {
             window.scrollTo(0, document.body.scrollHeight)
             return document.body.scrollHeight
         })
+        await page.waitForTimeout(200)
 
         if (currentHeight === previousHeight) break
         previousHeight = currentHeight
 
         const newImageUrls = await page.evaluate(() => {
-            const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
+            const images = document.querySelector("div[role='list']").querySelectorAll('img')
             return Array.from(images).map((img) => {
                 const url = img.getAttribute('src')
                 if (url.includes('pinimg') && img.width > 75) return url
@@ -51,7 +52,6 @@ const scrapePage = async (url, selector) => {
         })
 
         imageUrls = [...imageUrls, ...newImageUrls]
-        await page.waitForTimeout(1000)
     }
     await browser.close()
 
