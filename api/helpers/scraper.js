@@ -32,19 +32,12 @@ const scrapePage = async (url, selector) => {
     let imageUrls = []
     let previousHeight
 
-    if(fromServer) {
-        await page.setViewport({
-            width: 1200,
-            height: 5000
-        });
-    }
-
     while (true) {
         const currentHeight = await page.evaluate(() => {
             window.scrollTo(0, document.body.scrollHeight)
             return document.body.scrollHeight
         })
-        await page.waitForTimeout(200)
+        await page.waitForTimeout(300)
 
         if (currentHeight === previousHeight) break
         previousHeight = currentHeight
