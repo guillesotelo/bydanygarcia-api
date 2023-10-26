@@ -3,7 +3,6 @@ dotenv.config()
 const chromium = require("@sparticuz/chromium")
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
 puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
-const fs = require('fs');
 
 const scrapePage = async (url, selector) => {
     let browser = null
@@ -13,10 +12,10 @@ const scrapePage = async (url, selector) => {
 
         browser = await puppeteer.launch({
             ignoreDefaultArgs: ['--disable-extensions'],
-            args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
-            // defaultViewport: chromium.defaultViewport,
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath(),
-            headless: 'always',
+            headless: chromium.headless,
             ignoreHTTPSErrors: true
         })
     } else {
@@ -29,26 +28,21 @@ const scrapePage = async (url, selector) => {
     }
 
     const page = await browser.newPage()
-
     await page.goto(url, { waitUntil: 'domcontentloaded' })
-
-    // Scroll down repeatedly until all images are loaded
     let imageUrls = []
     let previousHeight
+    
     while (true) {
         const currentHeight = await page.evaluate(() => {
             window.scrollTo(0, document.body.scrollHeight)
             return document.body.scrollHeight
         })
 
-        // If scrolling doesn't load more content, exit the loop
         if (currentHeight === previousHeight) break
-
         previousHeight = currentHeight
 
-        // Extract image URLs after scrolling
         const newImageUrls = await page.evaluate(() => {
-            const images = document.querySelectorAll('img')
+            const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
             return Array.from(images).map((img) => {
                 const url = img.getAttribute('src')
                 if (url.includes('pinimg') && img.width > 75) return url
@@ -56,14 +50,9 @@ const scrapePage = async (url, selector) => {
             })
         })
 
-        // Add the new image URLs to the result
         imageUrls = [...imageUrls, ...newImageUrls]
-
-        // Wait for some time before scrolling again
-        await page.waitForTimeout(250) // Adjust this wait time as needed
+        await page.waitForTimeout(500)
     }
-    // [...new Set(imageUrls)].forEach((item, i) => console.log(i, item))
-    // fs.writeFileSync('/home/guillermo/Documents/git/bydanygarcia-api/api/helpers/scrapped.html', await page.content());
     await browser.close()
 
     return [...new Set(imageUrls)]
