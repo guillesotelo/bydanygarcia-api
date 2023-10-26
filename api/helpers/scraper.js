@@ -51,7 +51,7 @@ const scrapePage = async (url, selector) => {
         })
 
         imageUrls = [...imageUrls, ...newImageUrls]
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(1000)
     }
     await browser.close()
 
