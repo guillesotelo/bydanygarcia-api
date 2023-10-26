@@ -14,8 +14,14 @@ app.use(morgan("dev"))
 // app.use(express.json())
 // app.use(express.urlencoded({ extended: true }))
 
-app.use(express.json({ limit: '200mb' }));
-app.use(express.urlencoded({ limit: '200mb', extended: true, parameterLimit: 1000000 }));
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*")
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+  next()
+})
+
+app.use(express.json({ limit: '200mb' }))
+app.use(express.urlencoded({ limit: '200mb', extended: true, parameterLimit: 1000000 }))
 
 app.use("/api", routes)
 
