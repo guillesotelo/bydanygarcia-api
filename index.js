@@ -9,8 +9,6 @@ app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
 }))
-app.options('*', cors());
-
 app.use(morgan("dev"))
 
 // app.use(express.json())
