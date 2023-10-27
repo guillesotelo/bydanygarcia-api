@@ -13,7 +13,7 @@ const scrapePage = async (url, selector) => {
 
         browser = await puppeteer.launch({
             ignoreDefaultArgs: ['--disable-extensions'],
-            args: chromium.args,
+            args: ['--no-sandbox'],
             defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath(),
             headless: 'always',
@@ -44,6 +44,8 @@ const scrapePage = async (url, selector) => {
         }
         previousHeight = currentHeight
 
+        await page.waitForTimeout(250)
+
         const newImageUrls = await page.evaluate(() => {
             const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
             return Array.from(images).map((img) => {
@@ -54,8 +56,6 @@ const scrapePage = async (url, selector) => {
         })
 
         imageUrls = [...imageUrls, ...newImageUrls]
-
-        await page.waitForTimeout(fromServer ? 500 : 250)
     }
     await browser.close()
 
