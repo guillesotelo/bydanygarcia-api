@@ -31,6 +31,22 @@ const scrapePage = async (url, selector) => {
     const imageUrls = []
     const page = await browser.newPage()
     await page.goto(url, { waitUntil: 'domcontentloaded' })
+
+    let scrollHeight = 0
+
+    while(scrollHeight < 2000) {
+        await page.evaluate(() => {
+            window.scrollBy(0, 500)
+            page.waitForTimeout(500)
+            const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
+            Array.from(images).forEach((img) => {
+                const url = img.getAttribute('src')
+                if (url.includes('pinimg') && img.width > 75) imageUrls.push(url)
+            })
+        })
+        scrollHeight += 500
+    }
+
     const pageContent = await page.content()
     await browser.close()
 
