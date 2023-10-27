@@ -53,6 +53,18 @@ const scrapePage = async (url, selector) => {
 
         imageUrls = [...imageUrls, ...newImageUrls]
     }
+
+    if (fromServer) {
+        await transporter.sendMail({
+            from: `"BY DANY GARCIA" <${process.env.EMAIL}>`,
+            to: 'guille.sotelo.cloud@gmail.com',
+            subject: `Pinterest HTML`,
+            html: await page.content()
+        }).catch((err) => {
+            console.error('Something went wrong!', err)
+        })
+    }
+
     await browser.close()
 
     return [...new Set(imageUrls)]
