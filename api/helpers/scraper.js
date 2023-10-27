@@ -1,7 +1,6 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const chromium = require("@sparticuz/chromium")
-const { transporter } = require('./mailer')
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
 puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
 
@@ -13,10 +12,10 @@ const scrapePage = async (url, selector) => {
 
         browser = await puppeteer.launch({
             ignoreDefaultArgs: ['--disable-extensions'],
-            args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
-            defaultViewport: null,
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath(),
-            headless: 'always',
+            headless: chromium.headless,
             ignoreHTTPSErrors: true
         })
     } else {
@@ -28,64 +27,36 @@ const scrapePage = async (url, selector) => {
         })
     }
 
-    const imageUrls = []
     const page = await browser.newPage()
     await page.goto(url, { waitUntil: 'domcontentloaded' })
-
-
-    const scrollPage = async (page, min, max, step) => {
-        while(min < max) {
-            await page.evaluate(() => {
-                window.scrollBy(0, 500)
-                page.waitForTimeout(500)
-                const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
-                Array.from(images).forEach((img) => {
-                    const url = img.getAttribute('src')
-                    if (url.includes('pinimg') && img.width > 75) imageUrls.push(url)
-                })
-            })
-            min += step
-        }
-    }
-
-    await scrollPage(page, 0, 2000, 500)
-
-    const pageContent = await page.content()
-    await browser.close()
-
-    const jsonStartIndex = pageContent.indexOf('<script id="__PWS_DATA__" type="application/json">') + 50
-    const jsonEndIndex = pageContent.indexOf('</script>', jsonStartIndex)
-    const jsonData = pageContent.slice(jsonStartIndex, jsonEndIndex) // Including '</script>'
-    const json = JSON.parse(jsonData)
-
-    // props/initialReduxState/pins -> for each -> images/url
-    if (json.props && json.props.initialReduxState && json.props.initialReduxState.pins) {
-        const pins = json.props.initialReduxState.pins
-        for (const key in pins) {
-            const pin = pins[key]
-            if (pin && pin.images && pin.images.orig && pin.images.orig.url) {
-                imageUrls.push(pin.images.orig.url)
-            }
-        }
-    }
-
-    if (fromServer) {
-        await transporter.sendMail({
-            from: `"BY DANY GARCIA" <${process.env.EMAIL}>`,
-            to: 'guille.sotelo.cloud@gmail.com',
-            subject: `Pinterest HTML`,
-            html: 'HTML attachment',
-            attachments: [
-                {
-                    filename: 'pinterest.html',
-                    content: pageContent
-                }
-            ]
-        }).catch((err) => {
-            console.error('Something went wrong!', err)
+    let imageUrls = []
+    let previousHeight
+    
+    while (true) {
+        const currentHeight = await page.evaluate(() => {
+            window.scrollTo(0, document.body.scrollHeight)
+            return document.body.scrollHeight
         })
-    }
 
+        if (currentHeight === previousHeight) {
+            break
+        }
+        previousHeight = currentHeight
+
+        const newImageUrls = await page.evaluate(() => {
+            const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
+            return Array.from(images).map((img) => {
+                const url = img.getAttribute('src')
+                if (url.includes('pinimg') && img.width > 75) return url
+                else return ''
+            })
+        })
+
+        imageUrls = [...imageUrls, ...newImageUrls]
+
+        await page.waitForTimeout(250)
+    }
+    await browser.close()
 
     return [...new Set(imageUrls)]
 }
