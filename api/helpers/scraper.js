@@ -40,7 +40,7 @@ const scrapePage = async (url, selector) => {
             return document.body.scrollHeight
         })
 
-        await page.waitForTimeout(250)
+        await page.waitForTimeout(600)
         
         const newImageUrls = await page.evaluate(() => {
             const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
