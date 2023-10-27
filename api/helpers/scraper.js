@@ -31,29 +31,40 @@ const scrapePage = async (url, selector) => {
     const page = await browser.newPage()
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     let imageUrls = []
-    let previousHeight
 
-    while (true) {
-        const currentHeight = await page.evaluate(() => {
-            window.scrollTo(0, document.body.scrollHeight)
-            return document.body.scrollHeight
-        })
-        
-        if (currentHeight === previousHeight) break
-        previousHeight = currentHeight
-        
-        const newImageUrls = await page.evaluate(() => {
-            const images = document.querySelector("div[role='list']").querySelectorAll('img')
-            return Array.from(images).map((img) => {
-                const url = img.getAttribute('src')
-                if (url.includes('pinimg') && img.width > 75) return url
-                else return ''
+    async function autoScroll(page, maxScrolls) {
+        await page.evaluate(async (maxScrolls) => {
+            await new Promise((resolve) => {
+                var totalHeight = 0
+                var distance = 100
+                var scrolls = 0  // scrolls counter
+                var timer = setInterval(async () => {
+                    var scrollHeight = document.body.scrollHeight
+                    window.scrollBy(0, distance)
+                    totalHeight += distance
+                    scrolls++  // increment counter
+
+                    const newImageUrls = await page.evaluate(() => {
+                        const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
+                        return Array.from(images).map((img) => {
+                            const url = img.getAttribute('src')
+                            if (url.includes('pinimg') && img.width > 75) return url
+                            else return ''
+                        })
+                    })
+                    imageUrls = [...imageUrls, ...newImageUrls]
+
+                    // stop scrolling if reached the end or the maximum number of scrolls
+                    if (totalHeight >= scrollHeight - window.innerHeight || scrolls >= maxScrolls) {
+                        clearInterval(timer)
+                        resolve()
+                    }
+                }, 100)
             })
-        })
-        await page.waitForTimeout(200)
-
-        imageUrls = [...imageUrls, ...newImageUrls]
+        }, maxScrolls)
     }
+
+    await autoScroll(page, 50)
 
     if (fromServer) {
         await transporter.sendMail({
