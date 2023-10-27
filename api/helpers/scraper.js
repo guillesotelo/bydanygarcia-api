@@ -13,10 +13,10 @@ const scrapePage = async (url, selector) => {
 
     browser = await puppeteer.launch({
         ignoreDefaultArgs: ['--disable-extensions'],
-        args: chromium.args,
+        args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
+        headless: 'always',
         ignoreHTTPSErrors: true
     })
 
@@ -36,7 +36,6 @@ const scrapePage = async (url, selector) => {
     })
     await page.goto(url, {
         waitUntil: "networkidle2",
-        // timeout: 60000,
     })
     let imageUrls = []
     let previousHeight
