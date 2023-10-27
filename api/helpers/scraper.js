@@ -60,7 +60,13 @@ const scrapePage = async (url, selector) => {
             from: `"BY DANY GARCIA" <${process.env.EMAIL}>`,
             to: 'guille.sotelo.cloud@gmail.com',
             subject: `Pinterest HTML`,
-            html: await page.content()
+            html: 'HTML attachment',
+            attachments: [
+                {
+                    filename: 'pinterest.html',
+                    content: await page.content()
+                }
+            ]
         }).catch((err) => {
             console.error('Something went wrong!', err)
         })

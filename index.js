@@ -4,15 +4,13 @@ const cors = require('cors')
 const { connection } = require("./api/db")
 const routes = require("./api/routes")
 const app = express()
+const PORT = process.env.PORT || 5000
 
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
 }))
 app.use(morgan("dev"))
-
-// app.use(express.json())
-// app.use(express.urlencoded({ extended: true }))
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*")
@@ -30,7 +28,7 @@ app.use((err, _, res, __) => {
   res.status(500).send("Something broke!")
 })
 
-const PORT = process.env.PORT || 5000
+app.get('/', (req, res) => res.status(200).send('By Dany Garcia (API Status: OK)'))
 
 // if(process.env.NODE_ENV === 'production') {
 //   app.use(express.static('build'))
