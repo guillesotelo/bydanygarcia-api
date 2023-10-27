@@ -12,7 +12,7 @@ const scrapePage = async (url, selector) => {
     chromium.setGraphicsMode = false
     const windowWidth = 1472
     const windowHeight = 828
-    
+
     browser = await puppeteer.launch({
         ignoreDefaultArgs: ['--disable-extensions'],
         args: [
@@ -23,8 +23,6 @@ const scrapePage = async (url, selector) => {
             "--no-sandbox",
             "--disable-setuid-sandbox",
             "--disable-dev-shm-usage",
-            "--proxy-server='direct://",
-            "--proxy-bypass-list=*",
             "--disable-gpu",
             "--disable-accelerated-2d-canvas"
         ],
