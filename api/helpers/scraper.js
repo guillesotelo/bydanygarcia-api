@@ -36,7 +36,7 @@ const scrapePage = async (url, selector) => {
     })
     await page.goto(url, {
         waitUntil: "networkidle2",
-        timeout: 60000,
+        // timeout: 60000,
     })
     let imageUrls = []
     let previousHeight
