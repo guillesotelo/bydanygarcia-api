@@ -2,11 +2,12 @@ const dotenv = require('dotenv')
 dotenv.config()
 const chromium = require("@sparticuz/chromium")
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
-puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
+puppeteer = require('puppeteer-core')
+// fromServer ? require('puppeteer-core') : require('puppeteer')
 
 const scrapePage = async (url, selector) => {
     let browser = null
-    if (fromServer) {
+    // if (fromServer) {
         chromium.setHeadlessMode = true
         chromium.setGraphicsMode = false
 
@@ -15,17 +16,17 @@ const scrapePage = async (url, selector) => {
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath(),
-            headless: chromium.headless,
-            ignoreHTTPSErrors: true
-        })
-    } else {
-        browser = await puppeteer.launch({
-            ignoreDefaultArgs: ['--disable-extensions'],
-            args: ['--hide-scrollbars', '--disable-web-security'],
             headless: 'always',
             ignoreHTTPSErrors: true
         })
-    }
+    // } else {
+    //     browser = await puppeteer.launch({
+    //         ignoreDefaultArgs: ['--disable-extensions'],
+    //         args: ['--hide-scrollbars', '--disable-web-security'],
+    //         headless: 'always',
+    //         ignoreHTTPSErrors: true
+    //     })
+    // }
 
     const page = await browser.newPage()
     await page.goto(url, { waitUntil: 'domcontentloaded' })
@@ -54,7 +55,7 @@ const scrapePage = async (url, selector) => {
 
         imageUrls = [...imageUrls, ...newImageUrls]
 
-        await page.waitForTimeout(250)
+        await page.waitForTimeout(fromServer ? 500 : 250)
     }
     await browser.close()
 
