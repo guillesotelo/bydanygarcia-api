@@ -10,10 +10,24 @@ const scrapePage = async (url, selector) => {
     // if (fromServer) {
     chromium.setHeadlessMode = true
     chromium.setGraphicsMode = false
-
+    const windowWidth = 1472
+    const windowHeight = 828
+    
     browser = await puppeteer.launch({
         ignoreDefaultArgs: ['--disable-extensions'],
-        args: [...chromium.args, '--no-sandbox'],
+        args: [
+            ...chromium.args,
+            "--enable-automation",
+            "--start-maximized",
+            `--window-size=${windowWidth},${windowHeight}`,
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage",
+            "--proxy-server='direct://",
+            "--proxy-bypass-list=*",
+            "--disable-gpu",
+            "--disable-accelerated-2d-canvas"
+        ],
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
         headless: 'old',
@@ -29,10 +43,6 @@ const scrapePage = async (url, selector) => {
     // }
 
     const page = await browser.newPage()
-    await page.setViewport({
-        width: 1200,
-        height: 800
-    })
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     let imageUrls = []
     let previousHeight
