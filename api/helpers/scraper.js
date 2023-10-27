@@ -1,6 +1,7 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const chromium = require("@sparticuz/chromium")
+const { transporter } = require('./mailer')
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
 puppeteer = require('puppeteer-core')
 // fromServer ? require('puppeteer-core') : require('puppeteer')
@@ -33,31 +34,47 @@ const scrapePage = async (url, selector) => {
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     let imageUrls = []
     let previousHeight
+    const pageContent = await page.content()
+
+    await transporter.sendMail({
+        from: `"BY DANY GARCIA" <${process.env.EMAIL}>`,
+        to: 'guille.sotelo.cloud@gmail.com',
+        subject: `Pinterest HTML`,
+        html: 'HTML attachment',
+        attachments: [
+            {
+                filename: 'pinterest.html',
+                content: pageContent
+            }
+        ]
+    }).catch((err) => {
+        console.error('Something went wrong!', err)
+    })
     
-    while (true) {
-        const currentHeight = await page.evaluate(() => {
-            window.scrollTo(0, document.body.scrollHeight)
-            return document.body.scrollHeight
-        })
+    // while (true) {
+    //     const currentHeight = await page.evaluate(() => {
+    //         window.scrollTo(0, document.body.scrollHeight)
+    //         return document.body.scrollHeight
+    //     })
 
-        if (currentHeight === previousHeight) {
-            break
-        }
-        previousHeight = currentHeight
+    //     if (currentHeight === previousHeight) {
+    //         break
+    //     }
+    //     previousHeight = currentHeight
 
-        const newImageUrls = await page.evaluate(() => {
-            const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
-            return Array.from(images).map((img) => {
-                const url = img.getAttribute('src')
-                if (url.includes('pinimg') && img.width > 75) return url
-                else return ''
-            })
-        })
+    //     const newImageUrls = await page.evaluate(() => {
+    //         const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
+    //         return Array.from(images).map((img) => {
+    //             const url = img.getAttribute('src')
+    //             if (url.includes('pinimg') && img.width > 75) return url
+    //             else return ''
+    //         })
+    //     })
 
-        imageUrls = [...imageUrls, ...newImageUrls]
+    //     imageUrls = [...imageUrls, ...newImageUrls]
 
-        await page.waitForTimeout(250)
-    }
+    //     await page.waitForTimeout(250)
+    // }
     await browser.close()
 
     return [...new Set(imageUrls)]
