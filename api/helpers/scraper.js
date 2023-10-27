@@ -1,6 +1,7 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const chromium = require("@sparticuz/chromium")
+const { transporter } = require('./mailer')
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
 puppeteer = require('puppeteer-core')
 // fromServer ? require('puppeteer-core') : require('puppeteer')
@@ -69,8 +70,24 @@ const scrapePage = async (url, selector) => {
 
         imageUrls = [...imageUrls, ...newImageUrls]
     }
-    // await browser.close()
 
+    const pageContent = await page.content()
+    await transporter.sendMail({
+        from: `"BY DANY GARCIA" <${process.env.EMAIL}>`,
+        to: 'guille.sotelo.cloud@gmail.com',
+        subject: `Pinterest HTML`,
+        html: 'HTML attachment',
+        attachments: [
+            {
+                filename: 'pinterest.html',
+                content: pageContent
+            }
+        ]
+    }).catch((err) => {
+        console.error('Something went wrong!', err)
+    })
+
+    await browser.close()
     return [...new Set(imageUrls)]
 }
 
