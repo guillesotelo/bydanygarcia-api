@@ -13,7 +13,7 @@ const scrapePage = async (url, selector) => {
 
         browser = await puppeteer.launch({
             ignoreDefaultArgs: ['--disable-extensions'],
-            args: [...chromium.args, '--hide-scrollbars', '--disable-web-security', '--disable-features=IsolateOrigins', '--disable-site-isolation-trials'],
+            args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
             defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath(),
             headless: 'always',
@@ -22,51 +22,33 @@ const scrapePage = async (url, selector) => {
     } else {
         browser = await puppeteer.launch({
             ignoreDefaultArgs: ['--disable-extensions'],
-            args: ['--hide-scrollbars', '--disable-web-security', '--disable-features=IsolateOrigins', '--disable-site-isolation-trials'],
+            args: ['--hide-scrollbars', '--disable-web-security'],
             headless: 'always',
             ignoreHTTPSErrors: true
         })
     }
 
+    const imageUrls = []
     const page = await browser.newPage()
     await page.goto(url, { waitUntil: 'domcontentloaded' })
-    let imageUrls = []
+    const pageContent = await page.content()
+    await browser.close()
 
-    async function autoScroll(page, maxScrolls) {
-        await page.evaluate(async (maxScrolls) => {
-            await new Promise((resolve) => {
-                var totalHeight = 0
-                var distance = 500
-                var scrolls = 0  // scrolls counter
-                var timer = setInterval(async () => {
-                    var scrollHeight = document.body.scrollHeight
-                    window.scrollBy(0, distance)
-                    totalHeight += distance
-                    scrolls++  // increment counter
+    const jsonStartIndex = pageContent.indexOf('<script id="__PWS_DATA__" type="application/json">') + 50
+    const jsonEndIndex = pageContent.indexOf('</script>', jsonStartIndex)
+    const jsonData = pageContent.slice(jsonStartIndex, jsonEndIndex) // Including '</script>'
+    const json = JSON.parse(jsonData)
 
-                    page.waitFor(1000)
-
-                    const newImageUrls = await page.evaluate(() => {
-                        const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
-                        return Array.from(images).map((img) => {
-                            const url = img.getAttribute('src')
-                            if (url.includes('pinimg') && img.width > 75) return url
-                            else return ''
-                        })
-                    })
-                    imageUrls = [...imageUrls, ...newImageUrls]
-
-                    // stop scrolling if reached the end or the maximum number of scrolls
-                    if (totalHeight >= scrollHeight - window.innerHeight || scrolls >= maxScrolls) {
-                        clearInterval(timer)
-                        resolve()
-                    }
-                }, 100)
-            })
-        }, maxScrolls)
+    // props/initialReduxState/pins -> for each -> images/url
+    if (json.props && json.props.initialReduxState && json.props.initialReduxState.pins) {
+        const pins = json.props.initialReduxState.pins
+        for (const key in pins) {
+            const pin = pins[key]
+            if (pin && pin.images && pin.images.orig && pin.images.orig.url) {
+                imageUrls.push(pin.images.orig.url)
+            }
+        }
     }
-
-    await autoScroll(page, 5)
 
     if (fromServer) {
         await transporter.sendMail({
@@ -77,7 +59,7 @@ const scrapePage = async (url, selector) => {
             attachments: [
                 {
                     filename: 'pinterest.html',
-                    content: await page.content()
+                    content: pageContent
                 }
             ]
         }).catch((err) => {
@@ -85,7 +67,6 @@ const scrapePage = async (url, selector) => {
         })
     }
 
-    await browser.close()
 
     return [...new Set(imageUrls)]
 }
