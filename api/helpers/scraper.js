@@ -8,18 +8,18 @@ puppeteer = require('puppeteer-core')
 const scrapePage = async (url, selector) => {
     let browser = null
     // if (fromServer) {
-    chromium.setHeadlessMode = true
-    chromium.setGraphicsMode = false
+        chromium.setHeadlessMode = true
+        chromium.setGraphicsMode = false
 
-    browser = await puppeteer.launch({
-        ignoreDefaultArgs: ['--disable-extensions'],
-        args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: 'always',
-        ignoreHTTPSErrors: true
-    })
-
+        browser = await puppeteer.launch({
+            ignoreDefaultArgs: ['--disable-extensions'],
+            args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: 'always',
+            ignoreHTTPSErrors: true
+        })
+        
     // } else {
     //     browser = await puppeteer.launch({
     //         ignoreDefaultArgs: ['--disable-extensions'],
@@ -30,24 +30,18 @@ const scrapePage = async (url, selector) => {
     // }
 
     const page = await browser.newPage()
-    await page.setViewport({
-        width: 1920,
-        height: 1080,
-    })
-    await page.goto(url, {
-        waitUntil: "networkidle2",
-    })
+    await page.goto(url, { waitUntil: 'domcontentloaded' })
     let imageUrls = []
     let previousHeight
-
+    
     while (true) {
         const currentHeight = await page.evaluate(() => {
             window.scrollTo(0, document.body.scrollHeight)
             return document.body.scrollHeight
         })
 
-        await page.waitForTimeout(250)
-
+        await page.waitForTimeout(200)
+        
         const newImageUrls = await page.evaluate(() => {
             const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
             return Array.from(images).map((img) => {
@@ -56,9 +50,9 @@ const scrapePage = async (url, selector) => {
                 else return ''
             })
         })
-
+        
         imageUrls = [...imageUrls, ...newImageUrls]
-
+        
         if (currentHeight === previousHeight) {
             break
         }
