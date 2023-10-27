@@ -16,7 +16,7 @@ const scrapePage = async (url, selector) => {
         args: [...chromium.args, '--no-sandbox'],
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
-        headless: 'always',
+        headless: 'old',
         ignoreHTTPSErrors: true
     })
     // } else {
