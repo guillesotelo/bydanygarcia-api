@@ -1,6 +1,7 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const chromium = require("@sparticuz/chromium")
+const { transporter } = require('./mailer')
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
 puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
 
