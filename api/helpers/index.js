@@ -29,8 +29,15 @@ const verifyToken = (req, res, next) => {
     } else res.sendStatus(403)
 }
 
+const delay = (time) => {
+    return new Promise(function (resolve) {
+        setTimeout(resolve, time)
+    })
+}
+
 module.exports = {
     encrypt,
     decrypt,
-    verifyToken
+    verifyToken,
+    delay
 }
