@@ -13,7 +13,7 @@ const scrapePage = async (url, selector) => {
 
         browser = await puppeteer.launch({
             ignoreDefaultArgs: ['--disable-extensions'],
-            args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
+            args: [...chromium.args, '--hide-scrollbars', '--disable-web-security', '--disable-features=IsolateOrigins', '--disable-site-isolation-trials'],
             defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath(),
             headless: 'always',
@@ -22,7 +22,7 @@ const scrapePage = async (url, selector) => {
     } else {
         browser = await puppeteer.launch({
             ignoreDefaultArgs: ['--disable-extensions'],
-            args: ['--hide-scrollbars', '--disable-web-security'],
+            args: ['--hide-scrollbars', '--disable-web-security', '--disable-features=IsolateOrigins', '--disable-site-isolation-trials'],
             headless: 'always',
             ignoreHTTPSErrors: true
         })
@@ -36,13 +36,15 @@ const scrapePage = async (url, selector) => {
         await page.evaluate(async (maxScrolls) => {
             await new Promise((resolve) => {
                 var totalHeight = 0
-                var distance = 100
+                var distance = 500
                 var scrolls = 0  // scrolls counter
                 var timer = setInterval(async () => {
                     var scrollHeight = document.body.scrollHeight
                     window.scrollBy(0, distance)
                     totalHeight += distance
                     scrolls++  // increment counter
+
+                    page.waitFor(1000)
 
                     const newImageUrls = await page.evaluate(() => {
                         const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
@@ -64,7 +66,7 @@ const scrapePage = async (url, selector) => {
         }, maxScrolls)
     }
 
-    await autoScroll(page, 50)
+    await autoScroll(page, 5)
 
     if (fromServer) {
         await transporter.sendMail({
