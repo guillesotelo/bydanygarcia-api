@@ -40,11 +40,8 @@ const scrapePage = async (url, selector) => {
             return document.body.scrollHeight
         })
 
-        if (currentHeight === previousHeight) {
-            break
-        }
-        previousHeight = currentHeight
-
+        await page.waitForTimeout(250)
+        
         const newImageUrls = await page.evaluate(() => {
             const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
             return Array.from(images).map((img) => {
@@ -53,10 +50,13 @@ const scrapePage = async (url, selector) => {
                 else return ''
             })
         })
-
+        
         imageUrls = [...imageUrls, ...newImageUrls]
-
-        await page.waitForTimeout(250)
+        
+        if (currentHeight === previousHeight) {
+            break
+        }
+        previousHeight = currentHeight
     }
     await browser.close()
 
