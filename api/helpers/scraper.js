@@ -1,7 +1,6 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const chromium = require("@sparticuz/chromium")
-const { delay } = require('.')
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
 puppeteer = require('puppeteer-core')
 // fromServer ? require('puppeteer-core') : require('puppeteer')
@@ -48,8 +47,7 @@ const scrapePage = async (url, selector) => {
             return document.body.scrollHeight
         })
 
-        // await page.waitForTimeout(250)
-        await delay(500)
+        await page.waitForTimeout(250)
 
         const newImageUrls = await page.evaluate(() => {
             const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
