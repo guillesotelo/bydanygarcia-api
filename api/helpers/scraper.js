@@ -9,12 +9,12 @@ const scrapePage = async (url, selector) => {
     let browser = null
     if (fromServer) {
         chromium.setHeadlessMode = true
-        chromium.setGraphicsMode = true
+        chromium.setGraphicsMode = false
 
         browser = await puppeteer.launch({
             ignoreDefaultArgs: ['--disable-extensions'],
             args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
-            defaultViewport: chromium.defaultViewport,
+            defaultViewport: null,
             executablePath: await chromium.executablePath(),
             headless: 'always',
             ignoreHTTPSErrors: true
