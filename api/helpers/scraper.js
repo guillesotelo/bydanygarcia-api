@@ -1,6 +1,6 @@
 const dotenv = require('dotenv')
 dotenv.config()
-const chromium = require("@sparticuz/chromium")
+const chromium = require("@sparticuz/chromium-min")
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
 puppeteer = require('puppeteer-core')
 // fromServer ? require('puppeteer-core') : require('puppeteer')
@@ -15,7 +15,8 @@ const scrapePage = async (url, selector) => {
             ignoreDefaultArgs: ['--disable-extensions'],
             args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
+            // executablePath: await chromium.executablePath(),
+            executablePath: await chromium.executablePath(`https://github.com/Sparticuz/chromium/releases/download/v116.0.0/chromium-v116.0.0-pack.tar`),
             headless: 'always',
             ignoreHTTPSErrors: true
         })
