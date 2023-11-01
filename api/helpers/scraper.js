@@ -1,48 +1,40 @@
 const dotenv = require('dotenv')
 dotenv.config()
-const chromium = require("@sparticuz/chromium-min")
+const chromium = require("@sparticuz/chromium")
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
 puppeteer = require('puppeteer-core')
-// fromServer ? require('puppeteer-core') : require('puppeteer')
 
 const scrapePage = async (url, selector) => {
     let browser = null
-    // if (fromServer) {
-        chromium.setHeadlessMode = true
-        chromium.setGraphicsMode = false
+    chromium.setHeadlessMode = true
+    chromium.setGraphicsMode = false
 
-        browser = await puppeteer.launch({
-            ignoreDefaultArgs: ['--disable-extensions'],
-            args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
-            defaultViewport: chromium.defaultViewport,
-            // executablePath: await chromium.executablePath(),
-            executablePath: await chromium.executablePath(`https://github.com/Sparticuz/chromium/releases/download/v116.0.0/chromium-v116.0.0-pack.tar`),
-            headless: 'always',
-            ignoreHTTPSErrors: true
-        })
-        
-    // } else {
-    //     browser = await puppeteer.launch({
-    //         ignoreDefaultArgs: ['--disable-extensions'],
-    //         args: ['--hide-scrollbars', '--disable-web-security'],
-    //         headless: 'always',
-    //         ignoreHTTPSErrors: true
-    //     })
-    // }
+    browser = await puppeteer.launch({
+        ignoreDefaultArgs: ['--disable-extensions'],
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true
+    })
 
     const page = await browser.newPage()
-    await page.goto(url, { waitUntil: 'domcontentloaded' })
+    await page.setViewport({
+        width: 1920,
+        height: 1080,
+    })
+    await page.goto(url, { waitUntil: "networkidle2" })
     let imageUrls = []
     let previousHeight
-    
+
     while (true) {
         const currentHeight = await page.evaluate(() => {
             window.scrollTo(0, document.body.scrollHeight)
             return document.body.scrollHeight
         })
 
-        await page.waitForTimeout(200)
-        
+        await page.waitForTimeout(150)
+
         const newImageUrls = await page.evaluate(() => {
             const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
             return Array.from(images).map((img) => {
@@ -51,13 +43,13 @@ const scrapePage = async (url, selector) => {
                 else return ''
             })
         })
-        
+
         imageUrls = [...imageUrls, ...newImageUrls]
-        
-        if (currentHeight === previousHeight) {
-            break
-        }
+
+        if (currentHeight === previousHeight) break
         previousHeight = currentHeight
+
+        await page.waitForTimeout(100)
     }
     await browser.close()
 
