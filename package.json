@@ -4,7 +4,6 @@
   "engines": {
     "node": "18.x"
   },
-  "config-overrides-path": "node_modules/react-app-rewired/config-overrides.js",
   "dependencies": {
     "@sparticuz/chromium": "^117.0.0",
     "@sparticuz/chromium-min": "^118.0.0",
@@ -13,7 +12,6 @@
     "@testing-library/user-event": "^12.8.3",
     "axios": "^0.21.4",
     "bcryptjs": "^2.4.3",
-    "chrome-aws-lambda": "^10.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.17.1",
@@ -28,7 +26,8 @@
     "nodemon": "^2.0.12",
     "playwright": "^1.38.0",
     "pm2": "^5.2.2",
-    "puppeteer": "^21.4.1",
+    "puppeteer": "^21.3.1",
+    "puppeteer-core": "^21.3.1",
     "serve": "^14.2.1",
     "web-vitals": "^1.1.2"
   },
