@@ -19,11 +19,7 @@ const scrapePage = async (url, selector) => {
     })
 
     const page = await browser.newPage()
-    await page.setViewport({
-        width: 1920,
-        height: 1080,
-    })
-    await page.goto(url, { waitUntil: "networkidle2" })
+    await page.goto(url, { waitUntil: "domcontentloaded" })
     let imageUrls = []
     let previousHeight
 
@@ -32,8 +28,6 @@ const scrapePage = async (url, selector) => {
             window.scrollTo(0, document.body.scrollHeight)
             return document.body.scrollHeight
         })
-
-        await page.waitForTimeout(150)
 
         const newImageUrls = await page.evaluate(() => {
             const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
@@ -49,7 +43,7 @@ const scrapePage = async (url, selector) => {
         if (currentHeight === previousHeight) break
         previousHeight = currentHeight
 
-        await page.waitForTimeout(100)
+        await page.waitForTimeout(250)
     }
     await browser.close()
 

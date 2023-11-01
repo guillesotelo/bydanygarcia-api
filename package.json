@@ -4,6 +4,7 @@
   "engines": {
     "node": "18.x"
   },
+  "config-overrides-path": "node_modules/react-app-rewired/config-overrides.js",
   "dependencies": {
     "@sparticuz/chromium": "^117.0.0",
     "@sparticuz/chromium-min": "^118.0.0",
