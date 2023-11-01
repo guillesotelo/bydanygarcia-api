@@ -1,14 +1,16 @@
 const dotenv = require('dotenv')
 dotenv.config()
-puppeteer = require('puppeteer')
+// puppeteer = require('puppeteer')
+const chromium = require("chrome-aws-lambda");
 
 const scrapePage = async (url, selector) => {
     let browser = null
 
-    browser = await puppeteer.launch({
+    browser = await chromium.puppeteer.launch({
         ignoreDefaultArgs: ['--disable-extensions'],
         args: ['--hide-scrollbars', '--disable-web-security'],
         headless: 'always',
+        executablePath: await chromium.executablePath,
         ignoreHTTPSErrors: true
     })
 
