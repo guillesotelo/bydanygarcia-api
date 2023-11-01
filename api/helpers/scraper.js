@@ -8,7 +8,7 @@ const scrapePage = async (url, selector) => {
     browser = await puppeteer.launch({
         ignoreDefaultArgs: ['--disable-extensions'],
         args: ['--hide-scrollbars', '--disable-web-security'],
-        headless: false,
+        headless: 'always',
         ignoreHTTPSErrors: true
     })
 
@@ -43,7 +43,7 @@ const scrapePage = async (url, selector) => {
 
         await page.waitForTimeout(250)
     }
-    // await browser.close()
+    await browser.close()
 
     return [...new Set(imageUrls)]
 }
