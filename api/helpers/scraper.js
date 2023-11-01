@@ -1,24 +1,22 @@
 const dotenv = require('dotenv')
 dotenv.config()
-const chromium = require("@sparticuz/chromium")
-const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
-puppeteer = require('puppeteer-core')
+puppeteer = require('puppeteer')
 
 const scrapePage = async (url, selector) => {
     let browser = null
-    chromium.setHeadlessMode = true
-    chromium.setGraphicsMode = false
 
     browser = await puppeteer.launch({
         ignoreDefaultArgs: ['--disable-extensions'],
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
+        args: ['--hide-scrollbars', '--disable-web-security'],
+        headless: false,
         ignoreHTTPSErrors: true
     })
 
     const page = await browser.newPage()
+    await page.setViewport({
+        height: 1080,
+        width: 1920
+    })
     await page.goto(url, { waitUntil: "domcontentloaded" })
     let imageUrls = []
     let previousHeight
@@ -45,7 +43,7 @@ const scrapePage = async (url, selector) => {
 
         await page.waitForTimeout(250)
     }
-    await browser.close()
+    // await browser.close()
 
     return [...new Set(imageUrls)]
 }
