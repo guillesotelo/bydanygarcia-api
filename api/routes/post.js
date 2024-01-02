@@ -5,6 +5,7 @@ const { Post } = require('../db/models')
 //Get all posts
 router.get('/getAll', async (req, res, next) => {
     try {
+        const { isAdmin } = req.query
         const posts = await Post.find({
             $or: [
                 { removed: false },
@@ -13,7 +14,9 @@ router.get('/getAll', async (req, res, next) => {
         }).sort({ createdAt: -1 })
         if (!posts) return res.status(404).send('No posts found.')
 
-        res.status(200).json(posts)
+        const filteredPosts = isAdmin ? posts : posts.filter(post => post.published)
+
+        res.status(200).json(filteredPosts)
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
