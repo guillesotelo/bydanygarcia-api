@@ -13,6 +13,9 @@ const postSchema = new mongoose.Schema({
     overlap: {
         type: String
     },
+    category: {
+        type: String
+    },
     tags: {
         type: String
     },
