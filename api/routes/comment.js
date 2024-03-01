@@ -29,6 +29,20 @@ router.get('/getByPostId', async (req, res, next) => {
     }
 })
 
+//Get all replies by id
+router.get('/getRepliesById', async (req, res, next) => {
+    try {
+        const { replyingTo } = req.query
+        const comments = await Comment.find({ replyingTo }).sort({ createdAt: -1 })
+        if (!comments) return res.status(200).send('No comments found.')
+
+        res.status(200).json(comments)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
 //Get post by ID
 router.get('/getById', async (req, res, next) => {
     try {

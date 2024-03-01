@@ -13,8 +13,15 @@ const commentSchema = new mongoose.Schema({
     postId: {
         type: String
     },
+    replyingTo: {
+        type: String
+    },
     isDany: {
         type: Boolean
+    },
+    likes: {
+        type: Number,
+        default: 0
     },
 }, { timestamps: true })
 
