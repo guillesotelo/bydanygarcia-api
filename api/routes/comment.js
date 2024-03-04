@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { Comment } = require('../db/models')
+const { Comment, Subscription } = require('../db/models')
 
 //Get all comments
 router.get('/getAll', async (req, res, next) => {
@@ -61,6 +61,16 @@ router.get('/getById', async (req, res, next) => {
 router.post('/create', async (req, res, next) => {
     try {
         const newComment = await Comment.create(req.body)
+
+        const emails = await Subscription.find()
+        if (emails && emails.length) {
+            let subscribed = false
+            emails.forEach(doc => {
+                if (doc.email === req.body.email) subscribed = true
+            })
+            if (!subscribed) await Subscription.create({ ...req.body, capturedFrom: 'comment' })
+        }
+
         if (!newComment) return res.status(400).json('Error creating comment')
 
         res.status(200).json(newComment)

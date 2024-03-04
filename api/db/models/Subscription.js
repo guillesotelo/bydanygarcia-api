@@ -11,6 +11,9 @@ const subscriptionSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    capturedFrom: {
+        type: String
+    },
     data: {
         type: String
     },
