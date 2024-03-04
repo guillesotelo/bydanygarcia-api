@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { Comment, Subscription } = require('../db/models')
+const { verifyToken } = require('../helpers')
 
 //Get all comments
 router.get('/getAll', async (req, res, next) => {
@@ -97,7 +98,7 @@ router.post('/update', async (req, res, next) => {
 })
 
 //Update post Data
-router.post('/remove', async (req, res, next) => {
+router.post('/remove',  verifyToken, async (req, res, next) => {
     try {
         const { _id } = req.body
 

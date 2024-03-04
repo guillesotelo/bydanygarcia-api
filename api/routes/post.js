@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { Post } = require('../db/models')
+const { verifyToken } = require('../helpers')
 
 //Get all posts
 router.get('/getAll', async (req, res, next) => {
@@ -38,7 +39,7 @@ router.get('/getById', async (req, res, next) => {
 })
 
 //Create new post
-router.post('/create', async (req, res, next) => {
+router.post('/create', verifyToken, async (req, res, next) => {
     try {
         const newPost = await Post.create(req.body)
         if (!newPost) return res.status(400).json('Error creating post')
@@ -51,7 +52,7 @@ router.post('/create', async (req, res, next) => {
 })
 
 //Update post Data
-router.post('/update', async (req, res, next) => {
+router.post('/update', verifyToken, async (req, res, next) => {
     try {
         const { _id } = req.body
         let postData = { ...req.body }
@@ -67,7 +68,7 @@ router.post('/update', async (req, res, next) => {
 })
 
 //Update post Data
-router.post('/remove', async (req, res, next) => {
+router.post('/remove', verifyToken, async (req, res, next) => {
     try {
         const { _id } = req.body
 

@@ -2,7 +2,7 @@ const dotenv = require('dotenv')
 const express = require('express')
 const router = express.Router()
 const { Subscription } = require('../db/models')
-const { sendContactEmail } = require('../helpers/mailer')
+const { sendContactEmail, sendNotificationEmail } = require('../helpers/mailer')
 const { encrypt, decrypt } = require('../helpers')
 const { REACT_APP_URL } = process.env
 const jwt = require('jsonwebtoken')
@@ -15,13 +15,26 @@ const { scrapePage } = require('../helpers/scraper')
 //New subscription
 router.post('/subscribe', async (req, res, next) => {
     try {
-        const emailRegistered = await Subscription.findOne({ email }).exec()
+        const emailRegistered = await Subscription.findOne({ email: req.body.email }).exec()
         if (emailRegistered) return res.status(401).send('Email already subscripted')
 
-        const newSubscription = await Subscription.create(req.body)
+        const newSubscription = await Subscription.create({ ...req.body, capturedFrom: 'Subscription' })
         if (!newSubscription) return res.status(400).send('Bad request')
 
         res.status(201).send(`Subscribed successfully`)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
+//Get all emails
+router.get('/getAllEmails', verifyToken, async (req, res, next) => {
+    try {
+        const emails = await Subscription.find().sort({ createdAt: -1 })
+        if (!emails) return res.status(200).send('No emails found.')
+
+        res.status(200).json(emails)
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
@@ -34,6 +47,36 @@ router.post('/sendContactEmail', async (req, res, next) => {
         await sendContactEmail('Dany', req.body, 'danielasangar92@gmail.com')
 
         res.status(201).send(`Subscribed successfully`)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
+//Send Notification
+router.post('/sendNotification', verifyToken, async (req, res, next) => {
+    try {
+        const sent = await sendNotificationEmail(req.body)
+        if (!sent) res.status(400).send('Error sending mails')
+
+        res.status(201).send(`Emails sent`)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
+//Update Subscription
+router.post('/updateSubscription', async (req, res, next) => {
+    try {
+        console.log('%%%%%%%%%%%%%%', req.body)
+        const { _id } = req.body
+        let subscriptionData = { ...req.body }
+
+        const updated = await Subscription.findByIdAndUpdate(_id, subscriptionData, { returnDocument: "after", useFindAndModify: false })
+        if (!updated) return res.status(404).send('Error updating Subscription.')
+
+        res.status(200).json(updated)
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
@@ -60,7 +103,7 @@ router.post('/cancelSubscription', async (req, res, next) => {
 router.post('/scrape-url', async (req, res) => {
     try {
         const { url, selector } = req.body;
-        
+
         const imageUrls = await scrapePage(url, selector)
         res.json(imageUrls);
     } catch (error) {
