@@ -18,7 +18,7 @@ transporter.verify().then(() => {
 
 const sendContactEmail = async (username, data, to) => {
   await transporter.sendMail({
-    from: `"BY DANY GARCIA" <${process.env.EMAIL}>`,
+    from: `"by Dany Garcia" <${process.env.EMAIL}>`,
     to,
     subject: `Tienes un nuevo mensaje`,
     html: contactEmail(data, username)
@@ -29,9 +29,9 @@ const sendContactEmail = async (username, data, to) => {
 
 const sendNotificationEmail = async ({ emailList, subject, html }) => {
   const sent = await transporter.sendMail({
-    from: `"BY DANY GARCIA" <${process.env.EMAIL}>`,
+    from: `"by Dany Garcia" <${process.env.EMAIL}>`,
     to: emailList,
-    subject,
+    subject: subject || 'We have some updates for you',
     html
   }).catch((err) => {
     console.error('Something went wrong!', err)
