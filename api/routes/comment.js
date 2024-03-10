@@ -7,7 +7,7 @@ const { verifyToken } = require('../helpers')
 router.get('/getAll', async (req, res, next) => {
     try {
         const comments = await Comment.find().sort({ createdAt: -1 })
-        if (!comments) return res.status(404).send('No comments found.')
+        if (!comments) return res.status(200).send('No comments found.')
 
         res.status(200).json(comments)
     } catch (err) {
@@ -20,8 +20,10 @@ router.get('/getAll', async (req, res, next) => {
 router.get('/getByPostId', async (req, res, next) => {
     try {
         const { postId } = req.query
+        if (!postId) return res.status(200).json([])
+        
         const comments = await Comment.find({ postId }).sort({ createdAt: -1 })
-        if (!comments) return res.status(404).send('No comments found.')
+        if (!comments) return res.status(200).send('No comments found.')
 
         res.status(200).json(comments)
     } catch (err) {
@@ -98,7 +100,7 @@ router.post('/update', async (req, res, next) => {
 })
 
 //Update post Data
-router.post('/remove',  verifyToken, async (req, res, next) => {
+router.post('/remove', verifyToken, async (req, res, next) => {
     try {
         const { _id } = req.body
 
