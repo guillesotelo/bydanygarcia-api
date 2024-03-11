@@ -10,6 +10,9 @@ const emailTemplateSchema = new mongoose.Schema({
     html: {
         type: String
     },
+    subject: {
+        type: String
+    },
 }, { timestamps: true })
 
 const EmailTemplate = mongoose.model('EmailTemplate', emailTemplateSchema)
