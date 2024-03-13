@@ -69,7 +69,6 @@ router.post('/sendNotification', verifyToken, async (req, res, next) => {
 //Update Subscription
 router.post('/updateSubscription', async (req, res, next) => {
     try {
-        console.log('%%%%%%%%%%%%%%', req.body)
         const { _id } = req.body
         let subscriptionData = { ...req.body }
 
