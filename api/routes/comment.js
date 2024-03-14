@@ -21,7 +21,7 @@ router.get('/getByPostId', async (req, res, next) => {
     try {
         const { postId } = req.query
         if (!postId) return res.status(200).json([])
-        
+
         const comments = await Comment.find({ postId }).sort({ createdAt: -1 })
         if (!comments) return res.status(200).send('No comments found.')
 
@@ -63,15 +63,18 @@ router.get('/getById', async (req, res, next) => {
 //Create new post
 router.post('/create', async (req, res, next) => {
     try {
+        const { email } = req.body
         const newComment = await Comment.create(req.body)
 
-        const emails = await Subscription.find()
-        if (emails && emails.length) {
-            let subscribed = false
-            emails.forEach(doc => {
-                if (doc.email === req.body.email) subscribed = true
-            })
-            if (!subscribed) await Subscription.create({ ...req.body, capturedFrom: 'comment' })
+        if (email) {
+            const subscriptions = await Subscription.find()
+            if (subscriptions && subscriptions.length) {
+                let subscribed = false
+                subscriptions.forEach(doc => {
+                    if (doc.email === email) subscribed = true
+                })
+                if (!subscribed) await Subscription.create({ ...req.body, capturedFrom: 'Comment' })
+            }
         }
 
         if (!newComment) return res.status(400).json('Error creating comment')
