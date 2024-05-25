@@ -14,7 +14,20 @@ const scrapePage = async (url, selector) => {
             fromServer ?
                 {
                     ignoreDefaultArgs: ['--disable-extensions'],
-                    args: ['--hide-scrollbars', '--disable-web-security'],
+                    args: [
+                        ...chromium.args,
+                        '--disable-gpu',
+                        '--disable-dev-shm-usage',
+                        '--disable-setuid-sandbox',
+                        '--no-first-run',
+                        '--no-sandbox',
+                        '--no-zygote',
+                        '--deterministic-fetch',
+                        '--disable-features=IsolateOrigins',
+                        '--disable-site-isolation-trials',
+                        '--hide-scrollbars',
+                        '--disable-web-security'
+                    ],
                     defaultViewport: chromium.defaultViewport,
                     executablePath: await chromium.executablePath(),
                     headless: chromium.headless,
