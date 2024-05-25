@@ -6,8 +6,8 @@ puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
 
 const scrapePage = async (url, selector) => {
     try {
-        chromium.setHeadlessMode = true
-        chromium.setGraphicsMode = false
+        // chromium.setHeadlessMode = true
+        // chromium.setGraphicsMode = false
 
         const puppeteerOptions =
             fromServer ?
@@ -15,19 +15,19 @@ const scrapePage = async (url, selector) => {
                     ignoreDefaultArgs: ['--disable-extensions'],
                     args: [
                         ...chromium.args,
-                        // '--disable-gpu',
-                        // '--disable-dev-shm-usage',
-                        // '--disable-setuid-sandbox',
-                        // '--no-first-run',
-                        // '--no-sandbox',
-                        // '--no-zygote',
-                        // '--deterministic-fetch',
-                        // '--disable-features=IsolateOrigins',
-                        // '--disable-site-isolation-trials',
-                        // '--hide-scrollbars',
-                        // '--disable-web-security'
+                        '--disable-gpu',
+                        '--disable-dev-shm-usage',
+                        '--disable-setuid-sandbox',
+                        '--no-first-run',
+                        '--no-sandbox',
+                        '--no-zygote',
+                        '--deterministic-fetch',
+                        '--disable-features=IsolateOrigins',
+                        '--disable-site-isolation-trials',
+                        '--hide-scrollbars',
+                        '--disable-web-security'
                     ],
-                    // defaultViewport: chromium.defaultViewport,
+                    defaultViewport: chromium.defaultViewport,
                     executablePath: await chromium.executablePath(),
                     headless: true,
                     ignoreHTTPSErrors: true
@@ -44,10 +44,10 @@ const scrapePage = async (url, selector) => {
 
         const page = await browser.newPage()
 
-        // await page.setViewport({
-        //     width: 1920,
-        //     height: 1080,
-        // })
+        await page.setViewport({
+            width: 1920,
+            height: 1080,
+        })
 
         await page.goto(url, { waitUntil: "domcontentloaded" })
         let imageUrls = []
@@ -75,7 +75,7 @@ const scrapePage = async (url, selector) => {
 
             await page.waitForTimeout(250)
         }
-
+        
         await browser.close()
 
         return [...new Set(imageUrls)]
