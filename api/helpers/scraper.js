@@ -1,21 +1,21 @@
 const dotenv = require('dotenv')
 dotenv.config()
-const chromium = require("@sparticuz/chromium")
-const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
+// const chromium = require("@sparticuz/chromium")
+const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.NODE_ENV === 'production'
 puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
+const chrome = fromServer ? require('chrome-aws-lambda') : {}
 
 const scrapePage = async (url, selector) => {
     try {
-        let browser = null
-        chromium.setHeadlessMode = true
-        chromium.setGraphicsMode = false
+        // chromium.setHeadlessMode = true
+        // chromium.setGraphicsMode = false
 
         const puppeteerOptions =
             fromServer ?
                 {
                     ignoreDefaultArgs: ['--disable-extensions'],
                     args: [
-                        ...chromium.args,
+                        ...chrome.args,
                         '--disable-gpu',
                         '--disable-dev-shm-usage',
                         '--disable-setuid-sandbox',
@@ -28,9 +28,9 @@ const scrapePage = async (url, selector) => {
                         '--hide-scrollbars',
                         '--disable-web-security'
                     ],
-                    defaultViewport: chromium.defaultViewport,
-                    executablePath: await chromium.executablePath(),
-                    headless: chromium.headless,
+                    defaultViewport: chrome.defaultViewport,
+                    executablePath: await chrome.executablePath,
+                    headless: true,
                     ignoreHTTPSErrors: true
                 }
                 :
@@ -41,13 +41,15 @@ const scrapePage = async (url, selector) => {
                     ignoreHTTPSErrors: true
                 }
 
-        browser = await puppeteer.launch(puppeteerOptions)
+        const browser = await puppeteer.launch(puppeteerOptions)
 
         const page = await browser.newPage()
+
         await page.setViewport({
             width: 1920,
             height: 1080,
         })
+
         await page.goto(url, { waitUntil: "domcontentloaded" })
         let imageUrls = []
         let previousHeight
