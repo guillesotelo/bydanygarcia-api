@@ -2,7 +2,9 @@ const dotenv = require('dotenv')
 dotenv.config()
 const chromium = require("@sparticuz/chromium")
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION
-puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
+puppeteer = 
+// fromServer ? require('puppeteer-core') : 
+require('puppeteer')
 
 const scrapePage = async (url, selector) => {
     try {
@@ -10,16 +12,16 @@ const scrapePage = async (url, selector) => {
         chromium.setHeadlessMode = true
         chromium.setGraphicsMode = false
 
-        const puppeteerOptions = fromServer ?
-            {
-                ignoreDefaultArgs: ['--disable-extensions'],
-                args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
-                defaultViewport: chromium.defaultViewport,
-                executablePath: await chromium.executablePath(),
-                headless: chromium.headless,
-                ignoreHTTPSErrors: true
-            }
-            : {
+        const puppeteerOptions = 
+        // fromServer ?  {
+        //         ignoreDefaultArgs: ['--disable-extensions'],
+        //         args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
+        //         defaultViewport: chromium.defaultViewport,
+        //         executablePath: await chromium.executablePath(),
+        //         headless: chromium.headless,
+        //         ignoreHTTPSErrors: true
+        //     }   :
+             {
                 ignoreDefaultArgs: ['--disable-extensions'],
                 args: ['--hide-scrollbars', '--disable-web-security'],
                 headless: true,
