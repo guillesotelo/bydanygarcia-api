@@ -6,30 +6,18 @@ puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
 
 const scrapePage = async (url, selector) => {
     try {
-        // chromium.setHeadlessMode = true
-        // chromium.setGraphicsMode = false
+        let browser = null
+        chromium.setHeadlessMode = true
+        chromium.setGraphicsMode = false
 
         const puppeteerOptions =
             fromServer ?
                 {
                     ignoreDefaultArgs: ['--disable-extensions'],
-                    args: [
-                        ...chromium.args,
-                        '--disable-gpu',
-                        '--disable-dev-shm-usage',
-                        '--disable-setuid-sandbox',
-                        '--no-first-run',
-                        '--no-sandbox',
-                        '--no-zygote',
-                        '--deterministic-fetch',
-                        '--disable-features=IsolateOrigins',
-                        '--disable-site-isolation-trials',
-                        '--hide-scrollbars',
-                        '--disable-web-security'
-                    ],
+                    args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
                     defaultViewport: chromium.defaultViewport,
                     executablePath: await chromium.executablePath(),
-                    headless: true,
+                    headless: chromium.headless,
                     ignoreHTTPSErrors: true
                 }
                 :
@@ -40,7 +28,7 @@ const scrapePage = async (url, selector) => {
                     ignoreHTTPSErrors: true
                 }
 
-        const browser = await puppeteer.launch(puppeteerOptions)
+        browser = await puppeteer.launch(puppeteerOptions)
 
         const page = await browser.newPage()
 
@@ -75,7 +63,7 @@ const scrapePage = async (url, selector) => {
 
             await page.waitForTimeout(250)
         }
-        
+
         await browser.close()
 
         return [...new Set(imageUrls)]
