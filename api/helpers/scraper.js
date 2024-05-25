@@ -28,7 +28,7 @@ const scrapePage = async (url, selector) => {
                         '--disable-web-security'
                     ],
                     defaultViewport: chromium.defaultViewport,
-                    executablePath: await chromium.executablePath,
+                    executablePath: await chromium.executablePath(),
                     headless: true,
                     ignoreHTTPSErrors: true
                 }
