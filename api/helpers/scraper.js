@@ -1,21 +1,20 @@
 const dotenv = require('dotenv')
 dotenv.config()
-// const chromium = require("@sparticuz/chromium")
+const chromium = require("@sparticuz/chromium")
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.NODE_ENV === 'production'
 puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
-const chrome = fromServer ? require('chrome-aws-lambda') : {}
 
 const scrapePage = async (url, selector) => {
     try {
-        // chromium.setHeadlessMode = true
-        // chromium.setGraphicsMode = false
+        chromium.setHeadlessMode = true
+        chromium.setGraphicsMode = false
 
         const puppeteerOptions =
             fromServer ?
                 {
                     ignoreDefaultArgs: ['--disable-extensions'],
                     args: [
-                        ...chrome.args,
+                        ...chromium.args,
                         '--disable-gpu',
                         '--disable-dev-shm-usage',
                         '--disable-setuid-sandbox',
@@ -28,8 +27,8 @@ const scrapePage = async (url, selector) => {
                         '--hide-scrollbars',
                         '--disable-web-security'
                     ],
-                    defaultViewport: chrome.defaultViewport,
-                    executablePath: await chrome.executablePath,
+                    defaultViewport: chromium.defaultViewport,
+                    executablePath: await chromium.executablePath,
                     headless: true,
                     ignoreHTTPSErrors: true
                 }
