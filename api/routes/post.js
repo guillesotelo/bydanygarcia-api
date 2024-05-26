@@ -12,7 +12,9 @@ router.get('/getAll', async (req, res, next) => {
                 { removed: false },
                 { removed: { $exists: false } }
             ]
-        }).sort({ createdAt: -1 })
+        })
+        .select('-html -spaHtml -sideImgs -rawData')
+        .sort({ createdAt: -1 })
         if (!posts) return res.status(404).send('No posts found.')
 
         const filteredPosts = isAdmin ? posts : posts.filter(post => post.published)
