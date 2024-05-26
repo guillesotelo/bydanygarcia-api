@@ -4,6 +4,9 @@ const chromium = require("@sparticuz/chromium")
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.NODE_ENV === 'production'
 puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
 
+const path = require('path');
+const executablePath = path.join(__dirname, '@sparticuz', 'chromium', 'bin');
+
 const scrapePage = async (url, selector) => {
     try {
         let browser = null
@@ -16,7 +19,7 @@ const scrapePage = async (url, selector) => {
                     ignoreDefaultArgs: ['--disable-extensions'],
                     args: [...chromium.args, '--hide-scrollbars', '--disable-web-security', '--no-sandbox'],
                     defaultViewport: chromium.defaultViewport,
-                    executablePath: await chromium.executablePath('/opt/nodejs/node_modules/@sparticuz/chromium/bin'),
+                    executablePath: await chromium.executablePath(executablePath),
                     headless: chromium.headless,
                     ignoreHTTPSErrors: true
                 }
