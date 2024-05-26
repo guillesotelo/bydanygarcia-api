@@ -63,13 +63,14 @@ const scrapePage = async (url, selector) => {
 
             // await page.waitForTimeout(250)
         }
-        
+
+        await page.close()
+        await browser.close()
+
         return [...new Set(imageUrls)]
     } catch (error) {
         console.error(error)
         return []
-    } finally {
-        await browser.close()
     }
 }
 
