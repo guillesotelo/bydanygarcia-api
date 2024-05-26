@@ -49,6 +49,8 @@ const scrapePage = async (url, selector) => {
 
             const newImageUrls = await page.evaluate(() => {
                 const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
+                console.log(images)
+                
                 return Array.from(images).map((img) => {
                     const url = img.getAttribute('src')
                     if (url.includes('pinimg') && img.width > 75) return url
@@ -63,7 +65,7 @@ const scrapePage = async (url, selector) => {
 
             // await page.waitForTimeout(250)
         }
-
+        
         await page.close()
         await browser.close()
 
