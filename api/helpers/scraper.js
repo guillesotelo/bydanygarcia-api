@@ -16,7 +16,7 @@ const scrapePage = async (url, selector) => {
                     ignoreDefaultArgs: ['--disable-extensions'],
                     args: [...chromium.args, '--hide-scrollbars', '--disable-web-security', '--no-sandbox'],
                     defaultViewport: chromium.defaultViewport,
-                    executablePath: await chromium.executablePath(),
+                    executablePath: await chromium.executablePath('/opt/nodejs/node_modules/@sparticuz/chromium/bin'),
                     headless: chromium.headless,
                     ignoreHTTPSErrors: true
                 }
