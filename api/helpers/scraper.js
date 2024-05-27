@@ -1,26 +1,28 @@
 const dotenv = require('dotenv')
 dotenv.config()
-const chromium = require("@sparticuz/chromium")
-const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.NODE_ENV === 'production'
-puppeteer = fromServer ? require('puppeteer-core') : require('puppeteer')
+// const chromium = require("@sparticuz/chromium")
+// const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.NODE_ENV === 'production'
+puppeteer = 
+// fromServer ? require('puppeteer-core') : 
+require('puppeteer')
 
 const scrapePage = async (url, selector) => {
     try {
         let browser = null
-        chromium.setHeadlessMode = true
-        chromium.setGraphicsMode = false
+        // chromium.setHeadlessMode = true
+        // chromium.setGraphicsMode = false
 
         const puppeteerOptions =
-            fromServer ?
-                {
-                    ignoreDefaultArgs: ['--disable-extensions'],
-                    args: [...chromium.args, '--hide-scrollbars', '--disable-web-security', '--no-sandbox'],
-                    defaultViewport: chromium.defaultViewport,
-                    executablePath: await chromium.executablePath('/var/task/node_modules/@sparticuz/chromium/bin'),
-                    headless: chromium.headless,
-                    ignoreHTTPSErrors: true
-                }
-                :
+            // fromServer ?
+            //     {
+            //         ignoreDefaultArgs: ['--disable-extensions'],
+            //         args: [...chromium.args, '--hide-scrollbars', '--disable-web-security', '--no-sandbox'],
+            //         defaultViewport: chromium.defaultViewport,
+            //         executablePath: await chromium.executablePath('/var/task/node_modules/@sparticuz/chromium/bin'),
+            //         headless: chromium.headless,
+            //         ignoreHTTPSErrors: true
+            //     }
+            //     :
                 {
                     ignoreDefaultArgs: ['--disable-extensions'],
                     args: ['--hide-scrollbars', '--disable-web-security'],
@@ -32,10 +34,10 @@ const scrapePage = async (url, selector) => {
 
         const page = await browser.newPage()
 
-        await page.setViewport({
-            width: 1920,
-            height: 1080,
-        })
+        // await page.setViewport({
+        //     width: 1920,
+        //     height: 1080,
+        // })
 
         await page.goto(url, { waitUntil: "domcontentloaded" })
         let imageUrls = []
