@@ -1,7 +1,7 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const chromium = require("@sparticuz/chromium")
-const { chromium: playwright } = require("playwright-core");
+const { chromium: playwright } = require("playwright-core")
 
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.NODE_ENV === 'production'
 puppeteer =
@@ -43,15 +43,15 @@ const scrapePage = async (url, selector) => {
 
         browser = await playwright.launch(puppeteerOptions)
         console.log('####### 0 #######')
-        const context = await browser.newContext();
+        const context = await browser.newContext()
         console.log('####### 1 #######')
         const page = await context.newPage()
         console.log('####### 1.5 #######')
 
-        await page.setViewport({
-            width: 1920,
-            height: 1080,
-        })
+        // await page.setViewport({
+        //     width: 1920,
+        //     height: 1080,
+        // })
         console.log('####### 2 #######')
 
         await page.goto(url, { waitUntil: "domcontentloaded" })
@@ -84,7 +84,10 @@ const scrapePage = async (url, selector) => {
             await page.waitForTimeout(250)
         }
 
-        await page.close()
+        for (const page of await browser.pages()) {
+            await page.close()
+        }
+        await browser.close()
         console.log('####### 4 #######')
         await browser.close()
         console.log('####### 5 #######')
