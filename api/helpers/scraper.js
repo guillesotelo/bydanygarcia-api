@@ -84,9 +84,8 @@ const scrapePage = async (url, selector) => {
             await page.waitForTimeout(250)
         }
 
-        for (const page of await browser.pages()) {
-            await page.close()
-        }
+        await context.close()
+        console.log('####### 3.5 #######')
         await browser.close()
         console.log('####### 4 #######')
         await browser.close()
