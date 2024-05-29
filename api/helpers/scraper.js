@@ -15,17 +15,21 @@ const scrapePage = async (url, selector) => {
         const puppeteerOptions =
             fromServer ?
                 {
-                    ignoreDefaultArgs: ['--disable-extensions'],
-                    args: [
-                        ...chromium.args,
-                        '--hide-scrollbars',
-                        '--disable-web-security',
-                        '--no-sandbox'
-                    ],
+                    args: chromium.args,
                     defaultViewport: chromium.defaultViewport,
                     executablePath: await chromium.executablePath(),
                     headless: chromium.headless,
-                    ignoreHTTPSErrors: true
+                    // ignoreDefaultArgs: ['--disable-extensions'],
+                    // args: [
+                    //     ...chromium.args,
+                    //     '--hide-scrollbars',
+                    //     '--disable-web-security',
+                    //     '--no-sandbox'
+                    // ],
+                    // defaultViewport: chromium.defaultViewport,
+                    // executablePath: await chromium.executablePath(),
+                    // headless: chromium.headless,
+                    // ignoreHTTPSErrors: true
                 }
                 :
                 {
