@@ -5,20 +5,11 @@ const { connection } = require("./api/db")
 const routes = require("./api/routes")
 const app = express()
 const PORT = process.env.PORT || 5000
-const prod = process.env.NODE_ENV === 'production'
 
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
 }))
-
-app.use(function (_, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', prod ? 'https://www.bydanygarcia.com' : '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type')
-  res.setHeader('Access-Control-Allow-Credentials', true)
-  next()
-})
 
 app.use(morgan("dev"))
 
