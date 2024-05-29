@@ -37,47 +37,54 @@ const scrapePage = async (url, selector) => {
 
         browser = await puppeteer.launch(puppeteerOptions)
 
+        console.log('####### 1 #######')
         const page = await browser.newPage()
+        console.log('####### 1.5 #######')
 
         await page.setViewport({
             width: 1920,
             height: 1080,
         })
+        console.log('####### 2 #######')
 
         await page.goto(url, { waitUntil: "domcontentloaded" })
         let imageUrls = []
         let previousHeight
+        console.log('####### 3 #######')
 
-        while (true) {
-            const currentHeight = await page.evaluate(() => {
-                window.scrollTo(0, document.body.scrollHeight)
-                return document.body.scrollHeight
-            })
+        // while (true) {
+        //     const currentHeight = await page.evaluate(() => {
+        //         window.scrollTo(0, document.body.scrollHeight)
+        //         return document.body.scrollHeight
+        //     })
 
-            const newImageUrls = await page.evaluate(() => {
-                const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
-                console.log(images)
+        //     const newImageUrls = await page.evaluate(() => {
+        //         const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
+        //         console.log(images)
 
-                return Array.from(images).map((img) => {
-                    const url = img.getAttribute('src')
-                    if (url.includes('pinimg') && img.width > 75) return url
-                    else return ''
-                })
-            })
+        //         return Array.from(images).map((img) => {
+        //             const url = img.getAttribute('src')
+        //             if (url.includes('pinimg') && img.width > 75) return url
+        //             else return ''
+        //         })
+        //     })
 
-            imageUrls = [...imageUrls, ...newImageUrls]
+        //     imageUrls = [...imageUrls, ...newImageUrls]
 
-            if (currentHeight === previousHeight) break
-            previousHeight = currentHeight
+        //     if (currentHeight === previousHeight) break
+        //     previousHeight = currentHeight
 
-            await page.waitForTimeout(250)
-        }
+        //     await page.waitForTimeout(250)
+        // }
 
         await page.close()
+        console.log('####### 4 #######')
         await browser.close()
+        console.log('####### 5 #######')
 
         return [...new Set(imageUrls)]
     } catch (error) {
+        console.log('####### CATCH #######')
         console.error(error)
         return []
     }
