@@ -39,10 +39,10 @@ const scrapePage = async (url, selector) => {
 
         const page = await browser.newPage()
 
-        // await page.setViewport({
-        //     width: 1920,
-        //     height: 1080,
-        // })
+        await page.setViewport({
+            width: 1920,
+            height: 1080,
+        })
 
         await page.goto(url, { waitUntil: "domcontentloaded" })
         let imageUrls = []
