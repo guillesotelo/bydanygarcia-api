@@ -2,9 +2,9 @@ const dotenv = require('dotenv')
 dotenv.config()
 const chromium = require("@sparticuz/chromium")
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.NODE_ENV === 'production'
-puppeteer = 
-fromServer ? require('puppeteer-core') : 
-require('puppeteer')
+puppeteer =
+    fromServer ? require('puppeteer-core') :
+        require('puppeteer')
 
 const scrapePage = async (url, selector) => {
     try {
@@ -16,7 +16,12 @@ const scrapePage = async (url, selector) => {
             fromServer ?
                 {
                     ignoreDefaultArgs: ['--disable-extensions'],
-                    args: [...chromium.args, '--hide-scrollbars', '--disable-web-security', '--no-sandbox'],
+                    args: [
+                        ...chromium.args,
+                        '--hide-scrollbars',
+                        '--disable-web-security',
+                        '--no-sandbox'
+                    ],
                     defaultViewport: chromium.defaultViewport,
                     executablePath: await chromium.executablePath(),
                     headless: chromium.headless,
@@ -52,7 +57,7 @@ const scrapePage = async (url, selector) => {
             const newImageUrls = await page.evaluate(() => {
                 const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
                 console.log(images)
-                
+
                 return Array.from(images).map((img) => {
                     const url = img.getAttribute('src')
                     if (url.includes('pinimg') && img.width > 75) return url
@@ -65,9 +70,9 @@ const scrapePage = async (url, selector) => {
             if (currentHeight === previousHeight) break
             previousHeight = currentHeight
 
-            // await page.waitForTimeout(250)
+            await page.waitForTimeout(250)
         }
-        
+
         await page.close()
         await browser.close()
 
