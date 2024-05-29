@@ -1,6 +1,8 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const chromium = require("@sparticuz/chromium")
+const { chromium: playwright } = require("playwright-core");
+
 const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.NODE_ENV === 'production'
 puppeteer =
     fromServer ? require('puppeteer-core') :
@@ -39,10 +41,11 @@ const scrapePage = async (url, selector) => {
                     ignoreHTTPSErrors: true
                 }
 
-        browser = await puppeteer.launch(puppeteerOptions)
-
+        browser = await playwright.launch(puppeteerOptions)
+        console.log('####### 0 #######')
+        const context = await browser.newContext();
         console.log('####### 1 #######')
-        const page = await browser.newPage()
+        const page = await context.newPage()
         console.log('####### 1.5 #######')
 
         await page.setViewport({
@@ -56,30 +59,30 @@ const scrapePage = async (url, selector) => {
         let previousHeight
         console.log('####### 3 #######')
 
-        // while (true) {
-        //     const currentHeight = await page.evaluate(() => {
-        //         window.scrollTo(0, document.body.scrollHeight)
-        //         return document.body.scrollHeight
-        //     })
+        while (true) {
+            const currentHeight = await page.evaluate(() => {
+                window.scrollTo(0, document.body.scrollHeight)
+                return document.body.scrollHeight
+            })
 
-        //     const newImageUrls = await page.evaluate(() => {
-        //         const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
-        //         console.log(images)
+            const newImageUrls = await page.evaluate(() => {
+                const images = document.querySelectorAll("div[role='list']")[0].querySelectorAll('img')
+                console.log(images)
 
-        //         return Array.from(images).map((img) => {
-        //             const url = img.getAttribute('src')
-        //             if (url.includes('pinimg') && img.width > 75) return url
-        //             else return ''
-        //         })
-        //     })
+                return Array.from(images).map((img) => {
+                    const url = img.getAttribute('src')
+                    if (url.includes('pinimg') && img.width > 75) return url
+                    else return ''
+                })
+            })
 
-        //     imageUrls = [...imageUrls, ...newImageUrls]
+            imageUrls = [...imageUrls, ...newImageUrls]
 
-        //     if (currentHeight === previousHeight) break
-        //     previousHeight = currentHeight
+            if (currentHeight === previousHeight) break
+            previousHeight = currentHeight
 
-        //     await page.waitForTimeout(250)
-        // }
+            await page.waitForTimeout(250)
+        }
 
         await page.close()
         console.log('####### 4 #######')
