@@ -62,7 +62,7 @@ const scrapePage = async (url, selector) => {
 
             imageUrls = [...imageUrls, ...newImageUrls]
 
-            if (currentHeight === previousHeight || currentHeight > 3000) break
+            if (currentHeight === previousHeight || previousHeight > 2000) break
             previousHeight = currentHeight
 
             await page.waitForTimeout(250)
