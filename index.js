@@ -11,27 +11,42 @@ const AUTO_SCRAPPER = process.env.AUTO_SCRAPPER || null
 let intervalId = null
 
 const scrapeAndSaveImages = async () => {
-  const arrangementsUrl = 'https://www.pinterest.se/bespoken_ar/flower-arrangements/'
-  const adornmentsUrl = 'https://www.pinterest.se/bespoken_ar/flower-adornments/'
-  const giftsUrl = 'https://www.pinterest.se/bespoken_ar/bespoken-gifts/'
-  const weddingUrl = 'https://www.pinterest.se/bespoken_ar/our-diy-wedding/'
-
-  clearInterval(intervalId)
-  intervalId = setInterval(async () => {
+  const scrape = async () => {
+    const arrangementsUrl = 'https://www.pinterest.se/bespoken_ar/flower-arrangements/'
+    const adornmentsUrl = 'https://www.pinterest.se/bespoken_ar/flower-adornments/'
+    const giftsUrl = 'https://www.pinterest.se/bespoken_ar/bespoken-gifts/'
+    const weddingUrl = 'https://www.pinterest.se/bespoken_ar/our-diy-wedding/'
     try {
+      console.log('Auto Scraping URLs...')
       const arrangementsImages = await scrapePage(arrangementsUrl)
       const adornmentsImages = await scrapePage(adornmentsUrl)
       const giftsImages = await scrapePage(giftsUrl)
       const weddingImages = await scrapePage(weddingUrl)
 
-      if (arrangementsImages && arrangementsImages.length) await ScrappedImage.create({ urls: arrangementsImages, gallery: 'arrangements', scrapUrl: arrangementsUrl })
-      if (adornmentsImages && adornmentsImages.length) await ScrappedImage.create({ urls: adornmentsImages, gallery: 'adornments', scrapUrl: adornmentsUrl })
-      if (giftsImages && giftsImages.length) await ScrappedImage.create({ urls: giftsImages, gallery: 'gifts', scrapUrl: giftsUrl })
-      if (weddingImages && weddingImages.length) await ScrappedImage.create({ urls: weddingImages, gallery: 'wedding', scrapUrl: weddingUrl })
+      if (arrangementsImages && arrangementsImages.length) {
+        console.log('Saving arrangementsImages...')
+        await ScrappedImage.findOneAndUpdate({ gallery: 'arrangements' }, { urls: JSON.stringify(arrangementsImages) })
+      }
+      if (adornmentsImages && adornmentsImages.length) {
+        console.log('Saving adornmentsImages...')
+        await ScrappedImage.findOneAndUpdate({ gallery: 'adornments' }, { urls: JSON.stringify(adornmentsImages) })
+      }
+      if (giftsImages && giftsImages.length) {
+        console.log('Saving giftsImages...')
+        await ScrappedImage.findOneAndUpdate({ gallery: 'gifts' }, { urls: JSON.stringify(giftsImages) })
+      }
+      if (weddingImages && weddingImages.length) {
+        console.log('Saving weddingImages...')
+        await ScrappedImage.findOneAndUpdate({ gallery: 'wedding' }, { urls: JSON.stringify(weddingImages) })
+      }
     } catch (err) {
       console.error('Error in scrapeAndSaveImages', err)
     }
-  }, 3000000)
+  }
+
+  clearInterval(intervalId)
+  await scrape()
+  intervalId = setInterval(scrape, 300000)
 }
 
 app.use(cors({
@@ -64,7 +79,7 @@ connection.on("error", console.error.bind("Connection error: ", console))
 
 connection.once("open", () => {
   app.listen(PORT, () => console.log(`* Server listening on Port: ${PORT}... *`))
-  if (AUTO_SCRAPPER) scrapeAndSaveImages()
+  // scrapeAndSaveImages()
 })
 
 
