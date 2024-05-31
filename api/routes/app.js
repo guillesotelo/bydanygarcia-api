@@ -1,7 +1,7 @@
 const dotenv = require('dotenv')
 const express = require('express')
 const router = express.Router()
-const { Subscription } = require('../db/models')
+const { Subscription, ScrappedImage } = require('../db/models')
 const { sendContactEmail, sendNotificationEmail } = require('../helpers/mailer')
 const { encrypt, decrypt } = require('../helpers')
 const { REACT_APP_URL } = process.env
@@ -110,5 +110,20 @@ router.post('/scrape-url', async (req, res) => {
         res.status(500).json({ error: 'An error occurred.' });
     }
 });
+
+//Get scrapped images
+router.get('/getScrappedImages', async (req, res, next) => {
+    try {
+        const { gallery } = req.query
+        const scrapped = await ScrappedImage.findOne({ gallery })
+        if (!scrapped) return res.status(200).send('No images found.')
+        const iamges = JSON.parse(scrapped.urls || '[]')
+
+        res.status(200).json(iamges)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
 
 module.exports = router
