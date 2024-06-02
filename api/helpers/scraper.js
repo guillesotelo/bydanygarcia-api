@@ -1,9 +1,8 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const chromium = require("@sparticuz/chromium")
-const fromServer = process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.NODE_ENV === 'production'
-puppeteer =
-    fromServer ? require('puppeteer-core') : 
+const prod = process.env.SERVER_INSTANCE === 'production'
+puppeteer = prod ? require('puppeteer-core') :
     require('puppeteer')
 
 const scrapePage = async (url, selector) => {
@@ -12,23 +11,22 @@ const scrapePage = async (url, selector) => {
         chromium.setHeadlessMode = true
         chromium.setGraphicsMode = false
 
-        const puppeteerOptions =
-        fromServer ?
+        const puppeteerOptions = prod ?
             {
                 ignoreDefaultArgs: ['--disable-extensions'],
                 args: [...chromium.args, '--hide-scrollbars', '--disable-web-security', '--no-sandbox'],
                 defaultViewport: chromium.defaultViewport,
-                executablePath: await chromium.executablePath(),
+                executablePath: '/usr/bin/chromium-browser',
                 headless: chromium.headless,
                 ignoreHTTPSErrors: true
             }
             :
-        {
-            ignoreDefaultArgs: ['--disable-extensions'],
-            args: ['--hide-scrollbars', '--disable-web-security'],
-            headless: true,
-            ignoreHTTPSErrors: true
-        }
+            {
+                ignoreDefaultArgs: ['--disable-extensions'],
+                args: ['--hide-scrollbars', '--disable-web-security'],
+                headless: true,
+                ignoreHTTPSErrors: true
+            }
 
         browser = await puppeteer.launch(puppeteerOptions)
 
@@ -62,7 +60,7 @@ const scrapePage = async (url, selector) => {
 
             imageUrls = [...imageUrls, ...newImageUrls]
 
-            if (currentHeight === previousHeight || previousHeight > 2000) break
+            if (currentHeight === previousHeight) break
             previousHeight = currentHeight
 
             await page.waitForTimeout(250)
