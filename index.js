@@ -5,6 +5,7 @@ const { connection } = require("./api/db")
 const routes = require("./api/routes")
 const { scrapePage } = require("./api/helpers/scraper")
 const { ScrappedImage } = require("./api/db/models")
+var bodyParser = require('body-parser');
 const app = express()
 const PORT = process.env.PORT || 5000
 const AUTO_SCRAPPER = process.env.AUTO_SCRAPPER || null
@@ -56,8 +57,8 @@ app.use(cors({
 
 app.use(morgan("dev"))
 
-app.use(express.json({ limit: '200mb' }))
-app.use(express.urlencoded({ limit: '200mb', extended: true, parameterLimit: 1000000 }))
+app.use(bodyParser.json({ limit: '200mb' }))
+app.use(bodyParser.urlencoded({ limit: '200mb', extended: true, parameterLimit: 1000000 }))
 
 app.use("/api", routes)
 
