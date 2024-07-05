@@ -13,8 +13,8 @@ router.get('/getAll', async (req, res, next) => {
                 { removed: { $exists: false } }
             ]
         })
-        .select('-html -spaHtml -sideImgs -rawData')
-        .sort({ createdAt: -1 })
+            .select('-html -spaHtml -sideImgs -rawData')
+            .sort({ createdAt: -1 })
         if (!posts) return res.status(404).send('No posts found.')
 
         const filteredPosts = isAdmin ? posts : posts.filter(post => post.published)
@@ -31,6 +31,20 @@ router.get('/getById', async (req, res, next) => {
     try {
         const { _id } = req.query
         const post = await Post.findById(_id)
+        if (!post) return res.status(404).send('Post not found.')
+
+        res.status(200).json(post)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
+//Get post by Title
+router.get('/getByTitle', async (req, res, next) => {
+    try {
+        const { title } = req.query
+        const post = await Post.findOne({ title }).exec()
         if (!post) return res.status(404).send('Post not found.')
 
         res.status(200).json(post)
