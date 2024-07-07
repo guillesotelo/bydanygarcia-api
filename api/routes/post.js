@@ -44,7 +44,9 @@ router.get('/getById', async (req, res, next) => {
 router.get('/getByTitle', async (req, res, next) => {
     try {
         const { title } = req.query
-        const post = await Post.findOne({ title }).exec()
+        let post = await Post.findOne({ title }).exec()
+            || await Post.findOne({ spaTitle: title }).exec()
+
         if (!post) return res.status(404).send('Post not found.')
 
         res.status(200).json(post)
