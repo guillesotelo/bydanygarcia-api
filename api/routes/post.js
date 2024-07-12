@@ -57,7 +57,7 @@ router.get('/getByTitle', async (req, res, next) => {
 })
 
 //Create new post
-router.post('/create', verifyToken, async (req, res, next) => {
+router.post('/create', async (req, res, next) => {
     try {
         const newPost = await Post.create(req.body)
         if (!newPost) return res.status(400).json('Error creating post')
@@ -70,7 +70,7 @@ router.post('/create', verifyToken, async (req, res, next) => {
 })
 
 //Update post Data
-router.post('/update', verifyToken, async (req, res, next) => {
+router.post('/update', async (req, res, next) => {
     try {
         const { _id } = req.body
         let postData = { ...req.body }
