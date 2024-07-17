@@ -41,11 +41,10 @@ router.get('/getById', async (req, res, next) => {
 })
 
 //Get post by Title
-router.get('/getByTitle', async (req, res, next) => {
+router.get('/getBySlug', async (req, res, next) => {
     try {
-        const { title } = req.query
-        let post = await Post.findOne({ title }).exec()
-            || await Post.findOne({ spaTitle: title }).exec()
+        const { slug } = req.query
+        let post = await Post.findOne({ slug }).exec()
 
         if (!post) return res.status(404).send('Post not found.')
 
