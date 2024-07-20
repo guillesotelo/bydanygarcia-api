@@ -19,6 +19,14 @@ router.get('/getAll', async (req, res, next) => {
 
         const filteredPosts = isAdmin ? posts : posts.filter(post => post.published)
 
+        // Promise.all(posts.map(post => {
+        //     post.slug = (post.title.trim() || post.spaTitle.trim())
+        //         .replace(/[^a-zA-Z0-9\s-]/g, '')
+        //         .replace(/\s+/g, '-')
+        //         .replace(/-+/g, '-')
+        //     post.save()
+        // }))
+
         res.status(200).json(filteredPosts)
     } catch (err) {
         console.error('Something went wrong!', err)
