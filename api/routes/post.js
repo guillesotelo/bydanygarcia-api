@@ -21,6 +21,8 @@ router.get('/getAll', async (req, res, next) => {
 
         // Promise.all(posts.map(post => {
         //     post.slug = (post.title.trim() || post.spaTitle.trim())
+        //         .normalize('NFD')
+        //         .replace(/[\u0300-\u036f]/g, '')
         //         .replace(/[^a-zA-Z0-9\s-]/g, '')
         //         .replace(/\s+/g, '-')
         //         .replace(/-+/g, '-')
