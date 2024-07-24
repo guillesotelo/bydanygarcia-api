@@ -22,6 +22,9 @@ const postSchema = new mongoose.Schema({
     tags: {
         type: String
     },
+    video: {
+        type: String
+    },
     rawData: {
         type: String
     },
