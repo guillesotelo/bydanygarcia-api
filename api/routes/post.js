@@ -99,9 +99,10 @@ router.post('/remove', verifyToken, async (req, res, next) => {
     try {
         const { _id } = req.body
 
-        const deleted = await Post.findOneAndRemove({ _id })
+        const updated = await Post.findByIdAndUpdate(_id, { removed: true }, { returnDocument: "after", useFindAndModify: false })
+        if (!updated) return res.status(404).send('Error updating post.')
 
-        res.status(200).json(deleted)
+        res.status(200).json(true)
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
