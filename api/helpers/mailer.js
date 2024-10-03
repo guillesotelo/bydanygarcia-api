@@ -16,12 +16,12 @@ transporter.verify().then(() => {
   console.log("* Mailing ready *")
 })
 
-const sendContactEmail = async (username, data, to) => {
+const sendContactEmail = async (data) => {
   await transporter.sendMail({
     from: `"by Dany Garcia" <${process.env.EMAIL}>`,
-    to,
+    to: 'danielasangar92@gmail.com',
     subject: `Tienes un nuevo mensaje`,
-    html: contactEmail(data, username)
+    html: contactEmail(data)
   }).catch((err) => {
     console.error('Something went wrong!', err)
   })

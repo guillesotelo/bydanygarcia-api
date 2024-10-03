@@ -44,7 +44,7 @@ router.get('/getAllEmails', verifyToken, async (req, res, next) => {
 //Send Contact Email
 router.post('/sendContactEmail', async (req, res, next) => {
     try {
-        await sendContactEmail('Dany', req.body, 'danielasangar92@gmail.com')
+        await sendContactEmail(req.body)
 
         res.status(201).send(`Subscribed successfully`)
     } catch (err) {
