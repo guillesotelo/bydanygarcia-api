@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const { contactEmail } = require('./emailTemplates');
+const { contactEmail, newPostComment } = require('./emailTemplates');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
@@ -27,6 +27,17 @@ const sendContactEmail = async (data) => {
   })
 }
 
+const sendCommentEmail = async (data) => {
+  await transporter.sendMail({
+    from: `"by Dany Garcia" <${process.env.EMAIL}>`,
+    to: 'danielasangar92@gmail.com',
+    subject: `Nuevo comentario en ${data.postName}`,
+    html: newPostComment(data)
+  }).catch((err) => {
+    console.error('Something went wrong!', err)
+  })
+}
+
 const sendNotificationEmail = async ({ emailList, subject, html }) => {
   const sent = await transporter.sendMail({
     from: `"by Dany Garcia" <${process.env.EMAIL}>`,
@@ -42,5 +53,6 @@ const sendNotificationEmail = async ({ emailList, subject, html }) => {
 module.exports = {
   transporter,
   sendContactEmail,
-  sendNotificationEmail
+  sendNotificationEmail,
+  sendCommentEmail
 }

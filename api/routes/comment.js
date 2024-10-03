@@ -1,7 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const { Comment, Subscription } = require('../db/models')
+const { Comment, Subscription, Post } = require('../db/models')
 const { verifyToken } = require('../helpers')
+const { newPostComment } = require('../helpers/emailTemplates')
+const { sendCommentEmail } = require('../helpers/mailer')
 
 //Get all comments
 router.get('/getAll', async (req, res, next) => {
@@ -65,6 +67,8 @@ router.post('/create', async (req, res, next) => {
     try {
         const { email } = req.body
         const newComment = await Comment.create(req.body)
+        const post = Post.find({ _id: newComment.postId })
+        if (post) await sendCommentEmail({ ...req.body, postName: post.title })
 
         if (email) {
             const subscriptions = await Subscription.find()
