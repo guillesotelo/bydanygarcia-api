@@ -2,7 +2,7 @@ const dotenv = require('dotenv')
 const express = require('express')
 const router = express.Router()
 const { Subscription, ScrappedImage } = require('../db/models')
-const { sendContactEmail, sendNotificationEmail } = require('../helpers/mailer')
+const { sendContactEmail, sendCustomContactEmail, sendNotificationEmail } = require('../helpers/mailer')
 const { encrypt, decrypt } = require('../helpers')
 const { REACT_APP_URL } = process.env
 const jwt = require('jsonwebtoken')
@@ -56,7 +56,7 @@ router.post('/sendContactEmail', async (req, res, next) => {
 //Send Custom Contact Email
 router.post('/sendCustomContactEmail', async (req, res, next) => {
     try {
-        await sendContactEmail(req.body)
+        await sendCustomContactEmail(req.body)
 
         res.status(201).send(`Custom message sent successfully`)
     } catch (err) {
