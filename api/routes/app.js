@@ -46,12 +46,25 @@ router.post('/sendContactEmail', async (req, res, next) => {
     try {
         await sendContactEmail(req.body)
 
-        res.status(201).send(`Subscribed successfully`)
+        res.status(201).send(`Message sent successfully`)
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
     }
 })
+
+//Send Custom Contact Email
+router.post('/sendCustomContactEmail', async (req, res, next) => {
+    try {
+        await sendContactEmail(req.body)
+
+        res.status(201).send(`Custom message sent successfully`)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
 
 //Send Notification
 router.post('/sendNotification', verifyToken, async (req, res, next) => {

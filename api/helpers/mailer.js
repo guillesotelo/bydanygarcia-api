@@ -27,6 +27,19 @@ const sendContactEmail = async (data) => {
   })
 }
 
+const sendCustomContactEmail = async (data) => {
+  const { from, to, subject, html } = data
+  
+  await transporter.sendMail({
+    from: `"${from}" <${process.env.EMAIL}>`,
+    to,
+    subject,
+    html
+  }).catch((err) => {
+    console.error('Something went wrong!', err)
+  })
+}
+
 const sendCommentEmail = async (data) => {
   await transporter.sendMail({
     from: `"by Dany Garcia" <${process.env.EMAIL}>`,
@@ -53,6 +66,7 @@ const sendNotificationEmail = async ({ emailList, subject, html }) => {
 module.exports = {
   transporter,
   sendContactEmail,
+  sendCustomContactEmail,
   sendNotificationEmail,
   sendCommentEmail
 }
