@@ -66,7 +66,7 @@ app.use((err, _, res, __) => {
   res.status(500).send("Something broke!")
 })
 
-app.get('/', (req, res) => res.status(200).send('By Dany Garcia (API Status: OK)'))
+app.get('/', (req, res) => res.status(200).send('An Echo of the Heart (API Status: OK)'))
 
 // if(process.env.NODE_ENV === 'production') {
 //   app.use(express.static('build'))
