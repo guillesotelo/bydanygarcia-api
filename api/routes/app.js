@@ -21,6 +21,18 @@ router.post('/subscribe', async (req, res, next) => {
         const newSubscription = await Subscription.create({ ...req.body, capturedFrom: 'Subscription' })
         if (!newSubscription) return res.status(400).send('Bad request')
 
+        const emailData = {
+            from: 'An Echo of the Heart',
+            to: 'danielasangar92@gmail.com',
+            subject: 'New subscription!',
+            html: `<h1>Your Mail Community just got bigger! A new member has joined:</h1>
+                    <br/>
+                    <h2>${req.body.email}</h2>
+            `
+        }
+
+        await sendCustomContactEmail(emailData)
+
         res.status(201).send(`Subscribed successfully`)
     } catch (err) {
         console.error('Something went wrong!', err)
