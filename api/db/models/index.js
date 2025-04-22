@@ -4,6 +4,7 @@ const Subscription = require("./Subscription");
 const Comment = require("./Comment");
 const EmailTemplate = require("./EmailTemplate");
 const ScrappedImage = require("./ScrappedImage");
+const Product = require("./Product");
 
 module.exports = {
   User,
@@ -12,4 +13,5 @@ module.exports = {
   Comment,
   EmailTemplate,
   ScrappedImage,
+  Product
 };
