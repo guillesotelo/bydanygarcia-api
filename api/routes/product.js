@@ -59,6 +59,27 @@ router.post('/update', verifyToken, async (req, res, next) => {
     }
 })
 
+//Update product order
+router.post('/updateOrder', verifyToken, async (req, res, next) => {
+    try {
+        const { products } = req.body
+        let updatedProducts = []
+        if (products && products.length) {
+            updatedProducts = await Promise.all(products.map(async (product) =>
+                Product.findByIdAndUpdate(product._id, product, { returnDocument: "after", useFindAndModify: false })
+            ))
+            updatedProducts.forEach((product, index) => {
+                if (!product) console.error(`Unable to update product order: ${JSON.stringify(products[index])}`)
+            })
+        }
+
+        res.status(200).json(updatedProducts)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.status(500).send('Server Error')
+    }
+})
+
 //Update post Data
 router.post('/remove', verifyToken, async (req, res, next) => {
     try {
