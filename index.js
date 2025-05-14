@@ -12,10 +12,10 @@ let intervalId = null
 
 const scrapeAndSaveImages = async () => {
   const scrape = async () => {
-    const arrangementsUrl = 'https://www.pinterest.se/bespoken_ar/flower-arrangements/'
-    const adornmentsUrl = 'https://www.pinterest.se/bespoken_ar/flower-adornments/'
-    const giftsUrl = 'https://www.pinterest.se/bespoken_ar/bespoken-gifts/'
-    const weddingUrl = 'https://www.pinterest.se/bespoken_ar/our-diy-wedding/'
+    const arrangementsUrl = 'https://www.pinterest.se/bespokenbydany/flower-arrangements/'
+    const adornmentsUrl = 'https://www.pinterest.se/bespokenbydany/flower-crowns-and-adornments/'
+    const giftsUrl = 'https://www.pinterest.se/bespokenbydany/bespoken-gifts/'
+    const weddingUrl = 'https://www.pinterest.se/bespokenbydany/our-diy-wedding/'
     try {
       console.log('Auto Scraping URLs...')
       const arrangementsImages = await scrapePage(arrangementsUrl)
