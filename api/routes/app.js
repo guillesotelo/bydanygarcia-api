@@ -140,7 +140,7 @@ router.post('/scrape-url', async (req, res) => {
 router.get('/getScrappedImages', async (req, res, next) => {
     try {
         const { gallery } = req.query
-        const scrapped = await ScrappedImage.findOne({ gallery })
+        const scrapped = gallery ? await ScrappedImage.findOne({ gallery }) : await ScrappedImage.find()
         if (!scrapped) return res.status(200).send('No images found.')
         const iamges = JSON.parse(scrapped.urls || '[]')
 
