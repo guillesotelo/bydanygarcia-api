@@ -46,7 +46,7 @@ const scrapeAndSaveImages = async () => {
 
   clearInterval(intervalId)
   await scrape()
-  intervalId = setInterval(scrape, 300000)
+  intervalId = setInterval(scrape, 1000 * 60 * 60 * 1)
 }
 
 app.use(cors({
@@ -79,7 +79,7 @@ connection.on("error", console.error.bind("Connection error: ", console))
 
 connection.once("open", () => {
   app.listen(PORT, () => console.log(`* Server listening on Port: ${PORT}... *`))
-  // scrapeAndSaveImages()
+  scrapeAndSaveImages()
 })
 
 
