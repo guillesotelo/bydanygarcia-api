@@ -6,14 +6,15 @@ const { verifyToken } = require('../helpers')
 //Get all posts
 router.get('/getAll', async (req, res, next) => {
     try {
-        const { isAdmin } = req.query
+        const { isAdmin, getHtml } = req.query
+        const filter = getHtml ? '' : '-html -spaHtml -sideImgs -rawData'
         const posts = await Post.find({
             $or: [
                 { removed: false },
                 { removed: { $exists: false } }
             ]
         })
-            .select('-html -spaHtml -sideImgs -rawData')
+            .select(filter)
             .sort({ createdAt: -1 })
         if (!posts) return res.status(404).send('No posts found.')
 
