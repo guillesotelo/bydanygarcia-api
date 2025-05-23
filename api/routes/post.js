@@ -55,7 +55,7 @@ router.get('/getById', async (req, res, next) => {
 router.get('/getIdBySlug', async (req, res, next) => {
     try {
         const { slug } = req.query
-        const post = await Post.findOne({ slug }).select('_id').lean();
+        const post = await Post.findOne({ slug }).select('-html -spaHtml -image -imageUrl -sideImgs -rawData').exec();
 
         if (!post) return res.status(404).send('Post not found.')
 
