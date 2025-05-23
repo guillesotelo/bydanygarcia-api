@@ -51,11 +51,11 @@ router.get('/getById', async (req, res, next) => {
     }
 })
 
-//Get post by ID
+//Get post ID by Slug
 router.get('/getIdBySlug', async (req, res, next) => {
- try {
+    try {
         const { slug } = req.query
-        let post = await Post.findOne({ slug }).select('_id').exec()
+        const post = await Post.findOne({ slug }).select('_id').lean();
 
         if (!post) return res.status(404).send('Post not found.')
 
