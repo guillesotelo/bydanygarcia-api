@@ -51,6 +51,21 @@ router.get('/getById', async (req, res, next) => {
     }
 })
 
+//Get post by ID
+router.get('/getIdBySlug', async (req, res, next) => {
+ try {
+        const { slug } = req.query
+        let post = await Post.findOne({ slug }).select('_id').exec()
+
+        if (!post) return res.status(404).send('Post not found.')
+
+        res.status(200).json(post)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
 //Get post by Title
 router.get('/getBySlug', async (req, res, next) => {
     try {
