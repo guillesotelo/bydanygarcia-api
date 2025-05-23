@@ -4,7 +4,7 @@ const puppeteer = require("puppeteer-core");
 const scrapePage = async (url, selector) => {
     let browser;
     try {
-        const executablePath = await chromium.executablePath;
+        const executablePath = await chromium.executablePath();
 
         const browserOptions = {
             args: chromium.args,
