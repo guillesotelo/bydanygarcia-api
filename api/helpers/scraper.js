@@ -18,32 +18,32 @@ const scrapePage = async (url, selector) => {
         const page = await browser.newPage();
 
         await page.setViewport({ width: 1920, height: 1080 });
-        await page.goto(url, { waitUntil: "domcontentloaded" });
 
-        let imageUrls = [];
-        let previousHeight;
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 8000 });
 
-        while (true) {
-            const currentHeight = await page.evaluate(() => {
+        const imageUrls = new Set();
+        const maxScrolls = 10;
+        let scrollCount = 0;
+
+        while (scrollCount++ < maxScrolls) {
+            const newUrls = await page.evaluate(() => {
+                const list = document.querySelector("div[role='list']");
+                if (!list) return [];
+
+                const imgs = list.querySelectorAll("img");
+                return Array.from(imgs)
+                    .map(img => img.src)
+                    .filter(src => src.includes("pinimg") && img.width > 75);
+            });
+
+            newUrls.forEach(url => imageUrls.add(url));
+
+            // Short-circuit if we already have enough images
+            if (imageUrls.size >= 50) break;
+
+            await page.evaluate(() => {
                 window.scrollTo(0, document.body.scrollHeight);
-                return document.body.scrollHeight;
             });
-
-            const newImageUrls = await page.evaluate(() => {
-                const listContainer = document.querySelector("div[role='list']");
-                if (!listContainer) return [];
-
-                const images = listContainer.querySelectorAll('img');
-                return Array.from(images).map(img => {
-                    const url = img.getAttribute('src') || '';
-                    return url.includes('pinimg') && img.width > 75 ? url : '';
-                }).filter(Boolean);
-            });
-
-            imageUrls = [...imageUrls, ...newImageUrls];
-
-            if (currentHeight === previousHeight) break;
-            previousHeight = currentHeight;
 
             await page.waitForTimeout(250);
         }
@@ -51,7 +51,7 @@ const scrapePage = async (url, selector) => {
         await page.close();
         await browser.close();
 
-        return [...new Set(imageUrls)];
+        return Array.from(imageUrls);
     } catch (error) {
         console.error("Scraping error:", error);
         if (browser) await browser.close();
