@@ -2,15 +2,16 @@ const nodemailer = require('nodemailer');
 const { contactEmail, newPostComment } = require('./emailTemplates');
 require('dotenv').config();
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const transporter = null
+// nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 465,
+//   secure: true,
+//   auth: {
+//     user: process.env.EMAIL,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
 
 // transporter.verify().then(() => {
 //   console.log("* Mailing ready *")
@@ -29,7 +30,7 @@ const sendContactEmail = async (data) => {
 
 const sendCustomContactEmail = async (data) => {
   const { from, to, subject, html } = data
-  
+
   await transporter.sendMail({
     from: `"${from}" <${process.env.EMAIL}>`,
     to,
