@@ -79,7 +79,7 @@ connection.on("error", console.error.bind("Connection error: ", console))
 
 connection.once("open", () => {
   app.listen(PORT, () => console.log(`* Server listening on Port: ${PORT}... *`))
-  scrapeAndSaveImages()
+  // scrapeAndSaveImages()
 })
 
 
