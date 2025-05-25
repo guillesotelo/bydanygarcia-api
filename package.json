@@ -2,7 +2,7 @@
   "name": "bydanygarcia-api",
   "version": "1.1.0",
   "engines": {
-    "node": "20.x"
+    "node": "19.x"
   },
   "dependencies": {
     "@sparticuz/chromium": "^122.0.0",
