@@ -63,7 +63,7 @@ const scrapePage = async (url, selector) => {
             if (currentHeight === previousHeight) break
             previousHeight = currentHeight
 
-            await page.waitForTimeout(250)
+            if (page.waitForTimeout) await page.waitForTimeout(250)
         }
 
         await page.close()

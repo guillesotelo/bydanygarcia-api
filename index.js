@@ -2,7 +2,6 @@ const express = require("express")
 const morgan = require("morgan")
 const cors = require('cors')
 const { connection } = require("./api/db")
-const routes = require("./api/routes")
 const { scrapePage } = require("./api/helpers/scraper")
 const { ScrappedImage } = require("./api/db/models")
 const app = express()
@@ -58,8 +57,6 @@ app.use(morgan("dev"))
 
 app.use(express.json({ limit: '200mb' }))
 app.use(express.urlencoded({ limit: '200mb', extended: true, parameterLimit: 1000000 }))
-
-app.use("/api", routes)
 
 app.use((err, _, res, __) => {
   console.error(err.stack)
