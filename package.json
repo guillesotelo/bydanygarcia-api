@@ -29,7 +29,8 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "pm2 start && pm2 logs"
+    "start": "pm2 start && pm2 logs",
+    "build": "react-scripts build"
   },
   "browserslist": {
     "production": [
