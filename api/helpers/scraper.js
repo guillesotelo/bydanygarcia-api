@@ -10,13 +10,14 @@ const scrapePage = async (url, selector) => {
         let browser = null
         chromium.setHeadlessMode = true
         chromium.setGraphicsMode = false
+        const executablePath = await chromium.executablePath()
 
         const puppeteerOptions = prod ?
             {
                 ignoreDefaultArgs: ['--disable-extensions'],
                 args: [...chromium.args, '--hide-scrollbars', '--disable-web-security', '--no-sandbox'],
                 defaultViewport: chromium.defaultViewport,
-                executablePath: '/usr/bin/chromium-browser',
+                executablePath,
                 headless: chromium.headless,
                 ignoreHTTPSErrors: true
             }
