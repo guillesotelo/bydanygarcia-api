@@ -10,7 +10,10 @@ const scrapePage = async (url, selector) => {
         let browser = null
         chromium.setHeadlessMode = true
         chromium.setGraphicsMode = false
-        const executablePath = await chromium.executablePath()
+       
+        const executablePath = isProduction
+            ? await chromium.executablePath()
+            : undefined;
 
         const puppeteerOptions = prod ?
             {
