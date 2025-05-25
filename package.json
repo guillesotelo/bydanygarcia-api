@@ -32,8 +32,7 @@
   },
   "scripts": {
     "start": "pm2 start && pm2 logs",
-    "build": "react-scripts build",
-    "postinstall": "puppeteer-core browsers install chrome "
+    "build": "react-scripts build"
   },
   "browserslist": {
     "production": [
