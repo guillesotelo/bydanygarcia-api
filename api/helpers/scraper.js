@@ -11,7 +11,7 @@ const scrapePage = async (url, selector) => {
         chromium.setHeadlessMode = true
         chromium.setGraphicsMode = false
        
-        const executablePath = isProduction
+        const executablePath = prod
             ? await chromium.executablePath()
             : undefined;
 
