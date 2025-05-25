@@ -33,7 +33,7 @@
   "scripts": {
     "start": "pm2 start && pm2 logs",
     "build": "react-scripts build",
-    "postinstall": "node node_modules/@sparticuz/chromium/install.js"
+    "postinstall": "puppeteer-core browsers install chrome"
   },
   "browserslist": {
     "production": [
