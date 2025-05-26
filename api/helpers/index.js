@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const ALG = "aes-256-cbc"
 const jwt = require('jsonwebtoken')
 const { JWT_SECRET, KEY, IV } = process.env
+const sharp = require('sharp')
 
 const encrypt = text => {
     let cipher = crypto.createCipheriv(ALG, KEY, IV);
@@ -35,9 +36,39 @@ const delay = (time) => {
     })
 }
 
+const createPreviewImage = async (postData) => {
+    try {
+        const image = postData ? postData.imageUrl || postData.image : null
+        if (!image) return ''
+        if(image.length < 3000) return image
+
+        const matches = image.match(/^data:(image\/\w+);base64,(.+)$/)
+        if (!matches || matches.length !== 3) {
+            console.error('Invalid base64 image string')
+            return ''
+        }
+
+        const mimeType = matches[1]
+        const base64Data = matches[2]
+        const buffer = Buffer.from(base64Data, 'base64')
+
+        const resizedBuffer = await sharp(buffer)
+            .resize({ width: 400, height: 600, fit: 'inside' }) // keep aspect ratio
+            .jpeg({ quality: 70 }) // or use .png()/.webp() if needed
+            .toBuffer()
+
+        return `data:${mimeType};base64,${resizedBuffer.toString('base64')}`
+
+    } catch (error) {
+        console.error(error)
+        return ''
+    }
+}
+
 module.exports = {
     encrypt,
     decrypt,
     verifyToken,
-    delay
+    delay,
+    createPreviewImage
 }

@@ -40,6 +40,9 @@ const postSchema = new mongoose.Schema({
     imageUrl: {
         type: String
     },
+    previewImage: {
+        type: String
+    },
     type: {
         type: String
     },

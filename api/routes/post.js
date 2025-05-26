@@ -1,13 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const { Post } = require('../db/models')
-const { verifyToken } = require('../helpers')
+const { verifyToken, createPreviewImage } = require('../helpers')
 
 //Get all posts
 router.get('/getAll', async (req, res, next) => {
     try {
         const { isAdmin } = req.query
-        const filter = '-html -spaHtml -sideImgs -rawData -spaRawData'
+        const filter = '-imageUrl -image -sideImgs -html -spaHtml -rawData -spaRawData'
 
         const posts = await Post.find({
             $or: [
@@ -33,6 +33,34 @@ router.get('/getAll', async (req, res, next) => {
         // }))
 
         res.status(200).json(filteredPosts)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
+// create image preview for all (run once)
+router.get('/createPreviewForAll', async (req, res, next) => {
+    try {
+        const posts = await Post.find().select('-html -spaHtml -sideImgs -rawData -spaRawData')
+
+        for (const post of posts) {
+            const imageUrl = post.imageUrl || post.image
+            if (!imageUrl || post.previewImage) continue
+
+            const previewImage = await createPreviewImage(post)
+
+            if (previewImage) {
+                await Post.findByIdAndUpdate(
+                    post._id,
+                    { previewImage },
+                    { returnDocument: "after", useFindAndModify: false }
+                )
+                console.log(`Updated post "${post.title}"`)
+            }
+        }
+
+        res.status(200).json('Previews created successfully :)')
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
@@ -86,7 +114,9 @@ router.get('/getBySlug', async (req, res, next) => {
 //Create new post
 router.post('/create', verifyToken, async (req, res, next) => {
     try {
-        const newPost = await Post.create(req.body)
+        const previewImage = createPreviewImage(req.body)
+
+        const newPost = await Post.create({ ...req.body, previewImage })
         if (!newPost) return res.status(400).json('Error creating post')
 
         res.status(200).json(newPost)
@@ -100,7 +130,8 @@ router.post('/create', verifyToken, async (req, res, next) => {
 router.post('/update', verifyToken, async (req, res, next) => {
     try {
         const { _id } = req.body
-        let postData = { ...req.body }
+        const previewImage = createPreviewImage(req.body)
+        let postData = { ...req.body, previewImage }
 
         const updated = await Post.findByIdAndUpdate(_id, postData, { returnDocument: "after", useFindAndModify: false })
         if (!updated) return res.status(404).send('Error updating post.')
