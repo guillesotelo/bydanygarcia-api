@@ -1,12 +1,12 @@
 const express = require('express')
 const router = express.Router()
 const { Product } = require('../db/models')
-const { verifyToken } = require('../helpers')
+const { verifyToken, createPreviewImage } = require('../helpers')
 
 //Get all products
 router.get('/getAll', async (req, res, next) => {
     try {
-        const products = await Product.find().sort({ createdAt: -1 })
+        const products = await Product.find().select('-images -image').sort({ createdAt: -1 })
         if (!products) return res.status(200).send('No products found.')
 
         res.status(200).json(products)
@@ -30,10 +30,38 @@ router.get('/getById', async (req, res, next) => {
     }
 })
 
+// create image preview for all (run once)
+router.get('/createPreviewForAll', async (req, res, next) => {
+    try {
+        const products = await Product.find()
+
+        for (const product of products) {
+            if (product.previewImage) continue
+
+            const previewImage = await createPreviewImage(product)
+
+            if (previewImage) {
+                await Product.findByIdAndUpdate(
+                    product._id,
+                    { previewImage },
+                    { returnDocument: "after", useFindAndModify: false }
+                )
+                console.log(`Updated product "${product.title}"`)
+            }
+        }
+
+        res.status(200).json('Previews created successfully :)')
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
 //Create new product
 router.post('/create', verifyToken, async (req, res, next) => {
     try {
-        const newProduct = await Product.create(req.body)
+        const previewImage = createPreviewImage(req.body)
+        const newProduct = await Product.create({ ...req.body, previewImage })
         if (!newProduct) return res.status(400).json('Error creating product')
 
         res.status(200).json(newProduct)
@@ -47,7 +75,8 @@ router.post('/create', verifyToken, async (req, res, next) => {
 router.post('/update', verifyToken, async (req, res, next) => {
     try {
         const { _id } = req.body
-        let productData = { ...req.body }
+        const previewImage = createPreviewImage(req.body)
+        let productData = { ...req.body, previewImage }
 
         const updated = await Product.findByIdAndUpdate(_id, productData, { returnDocument: "after", useFindAndModify: false })
         if (!updated) return res.status(404).send('Error updating post.')

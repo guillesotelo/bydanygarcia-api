@@ -12,9 +12,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-transporter.verify().then(() => {
-  console.log("* Mailing ready *")
-}).catch(err => console.log('Error logging in with Nodemailer:', err))
+// transporter.verify().then(() => {
+//   console.log("* Mailing ready *")
+// }).catch(err => console.log('Error logging in with Nodemailer:', err))
 
 const sendContactEmail = async (data) => {
   await transporter.sendMail({
