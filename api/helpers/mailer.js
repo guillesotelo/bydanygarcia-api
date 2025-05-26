@@ -18,7 +18,7 @@ transporter.verify().then(() => {
 
 const sendContactEmail = async (data) => {
   await transporter.sendMail({
-    from: `"An Echo of the Heart" <${process.env.EMAIL}>`,
+    from: `"An Echo of the Heart" <hello@anechooftheheart.com>`,
     to: 'danielasangar92@gmail.com',
     subject: `Tienes un nuevo mensaje`,
     html: contactEmail(data)
@@ -31,7 +31,7 @@ const sendCustomContactEmail = async (data) => {
   const { from, to, subject, html } = data
   
   await transporter.sendMail({
-    from: `"${from}" <${process.env.EMAIL}>`,
+    from: `"${from}" <hello@anechooftheheart.com>`,
     to,
     subject,
     html
@@ -42,7 +42,7 @@ const sendCustomContactEmail = async (data) => {
 
 const sendCommentEmail = async (data) => {
   await transporter.sendMail({
-    from: `"An Echo of the Heart" <${process.env.EMAIL}>`,
+    from: `"An Echo of the Heart" <hello@anechooftheheart.com>`,
     to: 'danielasangar92@gmail.com',
     subject: `Nuevo comentario en ${data.postName}`,
     html: newPostComment(data)
@@ -53,7 +53,7 @@ const sendCommentEmail = async (data) => {
 
 const sendNotificationEmail = async ({ emailList, subject, html }) => {
   const sent = await transporter.sendMail({
-    from: `"An Echo of the Heart" <${process.env.EMAIL}>`,
+    from: `"An Echo of the Heart" <hello@anechooftheheart.com>`,
     to: emailList,
     subject: subject || 'We have some updates for you',
     html
