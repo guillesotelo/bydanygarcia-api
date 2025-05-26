@@ -30,6 +30,22 @@ router.get('/getById', async (req, res, next) => {
     }
 })
 
+//Get post metadata
+router.get('/getMetadataById', async (req, res, next) => {
+    try {
+        const { _id } = req.query
+        const product = await Product.findOne({ _id })
+            .select('-images -image').exec()
+
+        if (!product) return res.status(404).send('Product not found.')
+
+        res.status(200).json(product)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
 // create image preview for all (run once)
 router.get('/createPreviewForAll', async (req, res, next) => {
     try {
