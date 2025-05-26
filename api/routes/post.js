@@ -7,7 +7,7 @@ const { verifyToken } = require('../helpers')
 router.get('/getAll', async (req, res, next) => {
     try {
         const { isAdmin } = req.query
-        const filter = '-html -spaHtml -sideImgs -rawData'
+        const filter = '-html -spaHtml -sideImgs -rawData -spaRawData'
 
         const posts = await Post.find({
             $or: [
