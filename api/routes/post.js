@@ -111,6 +111,21 @@ router.get('/getBySlug', async (req, res, next) => {
     }
 })
 
+//Get post content by Slug
+router.get('/getContentBySlug', async (req, res, next) => {
+    try {
+        const { slug } = req.query
+        let post = await Post.findOne({ slug }).select('-previewImage -image -imageUrl -rawData -spaRawData').exec()
+
+        if (!post) return res.status(404).send('Post not found.')
+
+        res.status(200).json(post)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
 //Create new post
 router.post('/create', verifyToken, async (req, res, next) => {
     try {
