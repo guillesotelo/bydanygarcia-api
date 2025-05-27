@@ -142,9 +142,10 @@ router.get('/getScrappedImages', async (req, res, next) => {
         const { gallery } = req.query
         const scrapped = gallery ? await ScrappedImage.findOne({ gallery }) : await ScrappedImage.find()
         if (!scrapped) return res.status(200).send('No images found.')
-        const iamges = JSON.parse(scrapped.urls || '[]')
+            
+        const images = JSON.parse(scrapped.urls || '[]')
 
-        res.status(200).json(iamges)
+        res.status(200).json(images)
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
