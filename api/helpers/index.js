@@ -5,6 +5,7 @@ const ALG = "aes-256-cbc"
 const jwt = require('jsonwebtoken')
 const { JWT_SECRET, KEY, IV } = process.env
 const sharp = require('sharp')
+const { JSDOM } = require('jsdom');
 
 const encrypt = text => {
     let cipher = crypto.createCipheriv(ALG, KEY, IV);
@@ -38,9 +39,9 @@ const delay = (time) => {
 
 const createPreviewImage = async (data) => {
     try {
-        const image =  data ? data.images ? JSON.parse(data.images || '[]')[0] : data.imageUrl || data.image : null
+        const image = data ? data.images ? JSON.parse(data.images || '[]')[0] : data.imageUrl || data.image : null
         if (!image) return ''
-        if(image.length < 3000) return image
+        if (image.length < 3000) return image
 
         const matches = image.match(/^data:(image\/\w+);base64,(.+)$/)
         if (!matches || matches.length !== 3) {
@@ -65,10 +66,66 @@ const createPreviewImage = async (data) => {
     }
 }
 
+
+const compressHtmlImages = async (html) => {
+    try {
+        const compressImage = async (image) => {
+            try {
+                if (!image) return ''
+                if (image.length < 3000) return image
+
+                const matches = image.match(/^data:(image\/\w+);base64,(.+)$/)
+                if (!matches || matches.length !== 3) {
+                    console.error('Invalid base64 image string')
+                    return ''
+                }
+
+                const mimeType = matches[1]
+                const base64Data = matches[2]
+                const buffer = Buffer.from(base64Data, 'base64')
+
+                const resizedBuffer = await sharp(buffer)
+                    .resize({ width: 600, height: 600, fit: 'inside' })
+                    .png({ quality: 70 })
+                    .toBuffer()
+
+                return `data:${mimeType};base64,${resizedBuffer.toString('base64')}`
+            } catch (error) {
+                console.error(error)
+                return ''
+            }
+        }
+
+        if (!html || html.length < 5000) return html
+
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        const images = document.querySelectorAll('img')
+
+        const tasks = Array.from(images).map(async (img) => {
+            const src = img.getAttribute('src')
+            if (src && src.startsWith('data:image/')) {
+                try {
+                    const compressedSrc = await compressImage(src)
+                    img.setAttribute('src', compressedSrc)
+                } catch (err) {
+                    console.error('Error compressing image:', err)
+                }
+            }
+        })
+
+        await Promise.all(tasks)
+        return dom.serialize()
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 module.exports = {
     encrypt,
     decrypt,
     verifyToken,
     delay,
-    createPreviewImage
+    createPreviewImage,
+    compressHtmlImages
 }

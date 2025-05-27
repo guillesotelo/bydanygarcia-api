@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { Post } = require('../db/models')
-const { verifyToken, createPreviewImage } = require('../helpers')
+const { verifyToken, createPreviewImage, compressHtmlImages } = require('../helpers')
 
 //Get all posts
 router.get('/getAll', async (req, res, next) => {
@@ -61,6 +61,46 @@ router.get('/createPreviewForAll', async (req, res, next) => {
         }
 
         res.status(200).json('Previews created successfully :)')
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
+// compress all HTML images (run once)
+router.get('/compressHtml', async (req, res, next) => {
+    try {
+        const { slug } = req.query
+        const posts = slug ? await Post.find({ slug }).select('_id') : await Post.find().select('_id')
+        const length = posts.length
+        let count = 0
+        console.log(`Starting compression for ${length} posts...`)
+
+        for (const post of posts) {
+            const current = await Post.findById(post._id).select('title spaTitle html spaHtml')
+            const size = (current.html || '').length + (current.spaHtml || '').length
+
+            console.log('\n')
+            console.log(`Compressing: "${current.title || current.spaTitle}" [${size} chars]...`)
+            const html = await compressHtmlImages(current.html || '')
+            const spaHtml = await compressHtmlImages(current.spaHtml || '')
+            let newSize = 0
+
+            if (html || spaHtml) {
+                newSize = (html || '').length + (spaHtml || '').length
+                const reduction = (newSize * 100) / (size || 1)
+
+                await Post.findByIdAndUpdate(
+                    post._id,
+                    { html, spaHtml },
+                    { returnDocument: "after", useFindAndModify: false }
+                )
+                console.log(`Compressed HTML for: "${current.title || current.spaTitle}" [-${reduction.toFixed(1)}%]`)
+            }
+            count++
+        }
+
+        res.status(200).json(`Done compressing ${count} posts`)
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
