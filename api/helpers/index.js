@@ -67,35 +67,35 @@ const createPreviewImage = async (data) => {
     }
 }
 
+const compressImage = async (image) => {
+    try {
+        if (!image) return ''
+        if (image.length < 3000) return image
+
+        const matches = image.match(/^data:(image\/\w+);base64,(.+)$/)
+        if (!matches || matches.length !== 3) {
+            console.error('Invalid base64 image string')
+            return ''
+        }
+
+        const mimeType = matches[1]
+        const base64Data = matches[2]
+        const buffer = Buffer.from(base64Data, 'base64')
+
+        const resizedBuffer = await sharp(buffer)
+            .resize({ width: 600, height: 600, fit: 'inside' })
+            .png({ quality: 70 })
+            .toBuffer()
+
+        return `data:${mimeType};base64,${resizedBuffer.toString('base64')}`
+    } catch (error) {
+        console.error(error)
+        return ''
+    }
+}
 
 const compressHtml = async (html) => {
     try {
-        const compressImage = async (image) => {
-            try {
-                if (!image) return ''
-                if (image.length < 3000) return image
-
-                const matches = image.match(/^data:(image\/\w+);base64,(.+)$/)
-                if (!matches || matches.length !== 3) {
-                    console.error('Invalid base64 image string')
-                    return ''
-                }
-
-                const mimeType = matches[1]
-                const base64Data = matches[2]
-                const buffer = Buffer.from(base64Data, 'base64')
-
-                const resizedBuffer = await sharp(buffer)
-                    .resize({ width: 600, height: 600, fit: 'inside' })
-                    .png({ quality: 70 })
-                    .toBuffer()
-
-                return `data:${mimeType};base64,${resizedBuffer.toString('base64')}`
-            } catch (error) {
-                console.error(error)
-                return ''
-            }
-        }
 
         const gzipHTML = async (html) => {
             return new Promise((resolve, reject) => {
@@ -169,6 +169,7 @@ module.exports = {
     verifyToken,
     delay,
     createPreviewImage,
+    compressImage,
     compressHtml,
     decompressHtml
 }

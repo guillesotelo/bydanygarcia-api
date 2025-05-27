@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { Product } = require('../db/models')
-const { verifyToken, createPreviewImage } = require('../helpers')
+const { verifyToken, createPreviewImage, compressImage } = require('../helpers')
 
 //Get all products
 router.get('/getAll', async (req, res, next) => {
@@ -20,7 +20,7 @@ router.get('/getAll', async (req, res, next) => {
 router.get('/getById', async (req, res, next) => {
     try {
         const { _id } = req.query
-        const product = await Product.findById(_id)
+        const product = await Product.findById(_id).select('-previewImage')
         if (!product) return res.status(404).send('product not found.')
 
         res.status(200).json(product)
@@ -45,6 +45,38 @@ router.get('/getMetadataById', async (req, res, next) => {
         res.send(500).send('Server Error')
     }
 })
+
+// compress images (run once)
+router.get('/compressImages', async (req, res, next) => {
+    try {
+        const products = await Product.find().select('_id')
+
+        for (const product of products) {
+            const current = await Product.findById(product._id)
+
+            console.log(`\n`)
+            console.log(`Compressing images for: ${current.title}...`)
+
+            const compressedImages = await Promise.all(JSON.parse(current.images || [])
+                .map(async image => await compressImage(image)))
+
+            if (compressedImages && compressedImages.length) {
+                await Product.findByIdAndUpdate(
+                    product._id,
+                    { images: JSON.stringify(compressedImages) },
+                    { returnDocument: "after", useFindAndModify: false }
+                )
+                console.log(`Done`)
+            }
+        }
+
+        res.status(200).json('Compression done.')
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
 
 // create image preview for all (run once)
 router.get('/createPreviewForAll', async (req, res, next) => {
@@ -77,7 +109,15 @@ router.get('/createPreviewForAll', async (req, res, next) => {
 router.post('/create', verifyToken, async (req, res, next) => {
     try {
         const previewImage = createPreviewImage(req.body)
-        const newProduct = await Product.create({ ...req.body, previewImage })
+
+        const compressedImages = await Promise.all(JSON.parse(req.body.images || '[]')
+            .map(async image => await compressImage(image)))
+
+        const newProduct = await Product.create({
+            ...req.body,
+            previewImage,
+            images: JSON.stringify(compressedImages)
+        })
         if (!newProduct) return res.status(400).json('Error creating product')
 
         res.status(200).json(newProduct)
@@ -90,9 +130,17 @@ router.post('/create', verifyToken, async (req, res, next) => {
 //Update product Data
 router.post('/update', verifyToken, async (req, res, next) => {
     try {
-        const { _id } = req.body
+        const { _id, images } = req.body
         const previewImage = createPreviewImage(req.body)
-        let productData = { ...req.body, previewImage }
+
+        const compressedImages = await Promise.all(JSON.parse(images || '[]')
+            .map(async image => await compressImage(image)))
+
+        let productData = {
+            ...req.body,
+            previewImage,
+            images: JSON.stringify(compressedImages)
+        }
 
         const updated = await Product.findByIdAndUpdate(_id, productData, { returnDocument: "after", useFindAndModify: false })
         if (!updated) return res.status(404).send('Error updating post.')
