@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken')
 const { JWT_SECRET, KEY, IV } = process.env
 const sharp = require('sharp')
 const { JSDOM } = require('jsdom');
+const zlib = require('zlib');
 
 const encrypt = text => {
     let cipher = crypto.createCipheriv(ALG, KEY, IV);
@@ -67,7 +68,7 @@ const createPreviewImage = async (data) => {
 }
 
 
-const compressHtmlImages = async (html) => {
+const compressHtml = async (html) => {
     try {
         const compressImage = async (image) => {
             try {
@@ -86,7 +87,7 @@ const compressHtmlImages = async (html) => {
 
                 const resizedBuffer = await sharp(buffer)
                     .resize({ width: 600, height: 600, fit: 'inside' })
-                    .png({ quality: 70 })
+                    .png({ quality: 90 })
                     .toBuffer()
 
                 return `data:${mimeType};base64,${resizedBuffer.toString('base64')}`
@@ -94,6 +95,15 @@ const compressHtmlImages = async (html) => {
                 console.error(error)
                 return ''
             }
+        }
+
+        const gzipHTML = async (html) => {
+            return new Promise((resolve, reject) => {
+                zlib.gzip(html, (err, buffer) => {
+                    if (err) return reject(err)
+                    resolve(buffer) // This is a binary Buffer
+                })
+            })
         }
 
         if (!html || html.length < 5000) return html
@@ -115,9 +125,30 @@ const compressHtmlImages = async (html) => {
         })
 
         await Promise.all(tasks)
-        return dom.serialize()
+
+        const compressedHtml = await gzipHTML(dom.serialize())
+
+        return compressedHtml
     } catch (error) {
         console.error(error)
+    }
+}
+
+const decompressHtml = async (zHtml) => {
+    try {
+        const buf = Buffer.isBuffer(zHtml)
+            ? zHtml
+            : Buffer.from(zHtml, 'base64')
+
+        return new Promise((resolve, reject) => {
+            zlib.gunzip(buf, (err, result) => {
+                if (err) return reject(err)
+                resolve(result.toString())
+            })
+        })
+    } catch (error) {
+        console.error(error)
+        return ''
     }
 }
 
@@ -127,5 +158,6 @@ module.exports = {
     verifyToken,
     delay,
     createPreviewImage,
-    compressHtmlImages
+    compressHtml,
+    decompressHtml
 }

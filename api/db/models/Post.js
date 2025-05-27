@@ -67,6 +67,12 @@ const postSchema = new mongoose.Schema({
     spaHtml: {
         type: String
     },
+    zHtml: {
+        type: Buffer
+    },
+    zSpaHtml: {
+        type: Buffer
+    },
     published: {
         type: Boolean,
         default: false
