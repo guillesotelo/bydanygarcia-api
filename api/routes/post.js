@@ -79,11 +79,11 @@ router.get('/compressHtml', async (req, res, next) => {
         for (const post of posts) {
             const current = await Post.findById(post._id).select('title spaTitle html spaHtml zHtml')
 
-            if (current.zHtml) {
-                console.log(`HTML already compressed for: ${current.title || current.spaTitle}`)
-                count++
-                continue
-            }
+            // if (current.zHtml) {
+            //     console.log(`HTML already compressed for: ${current.title || current.spaTitle}`)
+            //     count++
+            //     continue
+            // }
 
             const size = Buffer.byteLength(current.html || '', 'utf8') + Buffer.byteLength(current.spaHtml || '', 'utf8')
 
@@ -119,9 +119,18 @@ router.get('/getById', async (req, res, next) => {
     try {
         const { _id } = req.query
         const post = await Post.findById(_id)
+
+        const postData = {
+            ...post._doc,
+            html: await decompressHtml(post.zHtml),
+            spaHtml: await decompressHtml(post.zSpaHtml),
+            zHtml: null,
+            zSpaHtml: null
+        }
+
         if (!post) return res.status(404).send('Post not found.')
 
-        res.status(200).json(post)
+        res.status(200).json(postData)
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
@@ -183,8 +192,10 @@ router.get('/getContentBySlug', async (req, res, next) => {
 
         const postData = {
             ...post._doc,
-            html: await decompressHtml(post._doc.zHtml),
-            spaHtml: await decompressHtml(post._doc.zSpaHtml)
+            html: await decompressHtml(post.zHtml),
+            spaHtml: await decompressHtml(post.zSpaHtml),
+            zHtml: null,
+            zSpaHtml: null
         }
 
         if (!post) return res.status(404).send('Post not found.')

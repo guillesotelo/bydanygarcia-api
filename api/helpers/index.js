@@ -87,7 +87,7 @@ const compressHtml = async (html) => {
 
                 const resizedBuffer = await sharp(buffer)
                     .resize({ width: 600, height: 600, fit: 'inside' })
-                    .png({ quality: 90 })
+                    .png({ quality: 70 })
                     .toBuffer()
 
                 return `data:${mimeType};base64,${resizedBuffer.toString('base64')}`
@@ -105,8 +105,6 @@ const compressHtml = async (html) => {
                 })
             })
         }
-
-        if (!html || html.length < 5000) return html
 
         const dom = new JSDOM(html)
         const document = dom.window.document
@@ -131,24 +129,37 @@ const compressHtml = async (html) => {
         return compressedHtml
     } catch (error) {
         console.error(error)
+        return ''
     }
 }
 
 const decompressHtml = async (zHtml) => {
     try {
-        const buf = Buffer.isBuffer(zHtml)
-            ? zHtml
-            : Buffer.from(zHtml, 'base64')
+        if (!zHtml) return null
+
+        // Decode from base64 if needed
+        let buffer
+        if (typeof zHtml === 'string') {
+            buffer = Buffer.from(zHtml, 'base64');
+        } else if (zHtml._bsontype === 'Binary') {
+            // MongoDB Binary object — extract underlying base64
+            buffer = Buffer.from(zHtml.base64(), 'base64')
+        } else if (Buffer.isBuffer(zHtml)) {
+            buffer = zHtml
+        } else {
+            return null
+        }
+        if (buffer.length === 0) return null
 
         return new Promise((resolve, reject) => {
-            zlib.gunzip(buf, (err, result) => {
+            zlib.gunzip(buffer, (err, result) => {
                 if (err) return reject(err)
-                resolve(result.toString())
+                resolve(result.toString('utf8'))
             })
         })
     } catch (error) {
         console.error(error)
-        return ''
+        return null
     }
 }
 
