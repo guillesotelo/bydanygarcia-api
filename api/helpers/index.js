@@ -55,8 +55,8 @@ const createPreviewImage = async (data) => {
         const buffer = Buffer.from(base64Data, 'base64')
 
         const resizedBuffer = await sharp(buffer)
-            .resize({ width: 400, height: 600, fit: 'inside' }) // keep aspect ratio
-            .jpeg({ quality: 70 }) // or use .png()/.webp() if needed
+            .resize({ width: 500, height: 500, fit: 'inside' }) // keep aspect ratio
+            .jpeg({ quality: 85 }) // or use .png()/.webp() if needed
             .toBuffer()
 
         return `data:${mimeType};base64,${resizedBuffer.toString('base64')}`
@@ -83,8 +83,8 @@ const compressImage = async (image) => {
         const buffer = Buffer.from(base64Data, 'base64')
 
         const resizedBuffer = await sharp(buffer)
-            .resize({ width: 600, height: 600, fit: 'inside' })
-            .png({ quality: 70 })
+            .resize({ width: 700, height: 700, fit: 'inside' })
+            .png({ quality: 85 })
             .toBuffer()
 
         return `data:${mimeType};base64,${resizedBuffer.toString('base64')}`
@@ -112,10 +112,12 @@ const compressHtml = async (html) => {
 
         const tasks = Array.from(images).map(async (img) => {
             const src = img.getAttribute('src')
-            if (src && src.startsWith('data:image/')) {
+            const alreadyCompressed = img.hasAttribute('data-compressed')
+            if (src && src.startsWith('data:image/' && !alreadyCompressed)) {
                 try {
                     const compressedSrc = await compressImage(src)
                     img.setAttribute('src', compressedSrc)
+                    img.setAttribute('data-compressed', '')
                 } catch (err) {
                     console.error('Error compressing image:', err)
                 }
