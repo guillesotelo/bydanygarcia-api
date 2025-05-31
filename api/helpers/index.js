@@ -55,7 +55,7 @@ const createPreviewImage = async (data) => {
         const buffer = Buffer.from(base64Data, 'base64')
 
         const resizedBuffer = await sharp(buffer)
-            .resize({ width: 500, height: 500, fit: 'inside' }) // keep aspect ratio
+            .resize({ width: 600, height: 600, fit: 'inside' }) // keep aspect ratio
             .jpeg({ quality: 85 }) // or use .png()/.webp() if needed
             .toBuffer()
 
@@ -84,7 +84,7 @@ const compressImage = async (image) => {
 
         const resizedBuffer = await sharp(buffer)
             .resize({ width: 700, height: 700, fit: 'inside' })
-            .png({ quality: 85 })
+            .jpeg({ quality: 85 })
             .toBuffer()
 
         return `data:${mimeType};base64,${resizedBuffer.toString('base64')}`
