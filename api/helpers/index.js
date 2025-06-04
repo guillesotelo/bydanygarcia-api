@@ -117,7 +117,7 @@ const compressHtml = async (html) => {
                 try {
                     const compressedSrc = await compressImage(src)
                     img.setAttribute('src', compressedSrc)
-                    img.setAttribute('data-compressed', '')
+                    img.setAttribute('data-compressed', 'true')
                 } catch (err) {
                     console.error('Error compressing image:', err)
                 }
