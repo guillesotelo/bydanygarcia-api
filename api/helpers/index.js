@@ -67,7 +67,7 @@ const createPreviewImage = async (data) => {
     }
 }
 
-const compressImage = async (image) => {
+const compressImage = async (image, { w, h, q }) => {
     try {
         if (!image) return ''
         if (image.length < 3000) return image
@@ -83,8 +83,8 @@ const compressImage = async (image) => {
         const buffer = Buffer.from(base64Data, 'base64')
 
         const resizedBuffer = await sharp(buffer)
-            .resize({ width: 700, height: 700, fit: 'inside' })
-            .jpeg({ quality: 85 })
+            .resize({ width: w || 700, height: h || 700, fit: 'inside' })
+            .jpeg({ quality: q || 85 })
             .toBuffer()
 
         return `data:${mimeType};base64,${resizedBuffer.toString('base64')}`

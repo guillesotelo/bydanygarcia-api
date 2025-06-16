@@ -30,6 +30,9 @@ const productSchema = new mongoose.Schema({
     images: {
         type: String
     },
+    compressed: {
+        type: String
+    },
     category: {
         type: String
     },

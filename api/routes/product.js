@@ -111,7 +111,7 @@ router.post('/create', verifyToken, async (req, res, next) => {
         const previewImage = await createPreviewImage(req.body)
 
         const compressedImages = await Promise.all(JSON.parse(req.body.images || '[]')
-            .map(async image => await compressImage(image)))
+            .map(async image => await compressImage(image, { w: 800, h: 800, q: 90 })))
 
         const newProduct = await Product.create({
             ...req.body,
@@ -130,11 +130,13 @@ router.post('/create', verifyToken, async (req, res, next) => {
 //Update product Data
 router.post('/update', verifyToken, async (req, res, next) => {
     try {
-        const { _id, images } = req.body
-        const previewImage = await createPreviewImage(req.body)
+        const { _id, images, compress } = req.body
+        const previewImage = compress ? await createPreviewImage(req.body) : images[0] || ''
 
-        const compressedImages = await Promise.all(JSON.parse(images || '[]')
-            .map(async image => await compressImage(image)))
+        const compressedImages = compress ?
+            await Promise.all(JSON.parse(images || '[]')
+                .map(async image => await compressImage(image, { w: 800, h: 800, q: 90 })))
+            : images
 
         let productData = {
             ...req.body,
