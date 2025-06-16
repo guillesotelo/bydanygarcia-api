@@ -108,7 +108,7 @@ router.get('/createPreviewForAll', async (req, res, next) => {
 //Create new product
 router.post('/create', verifyToken, async (req, res, next) => {
     try {
-        const previewImage = createPreviewImage(req.body)
+        const previewImage = await createPreviewImage(req.body)
 
         const compressedImages = await Promise.all(JSON.parse(req.body.images || '[]')
             .map(async image => await compressImage(image)))
@@ -131,7 +131,7 @@ router.post('/create', verifyToken, async (req, res, next) => {
 router.post('/update', verifyToken, async (req, res, next) => {
     try {
         const { _id, images } = req.body
-        const previewImage = createPreviewImage(req.body)
+        const previewImage = await createPreviewImage(req.body)
 
         const compressedImages = await Promise.all(JSON.parse(images || '[]')
             .map(async image => await compressImage(image)))
