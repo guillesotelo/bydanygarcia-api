@@ -165,6 +165,57 @@ const decompressHtml = async (zHtml) => {
     }
 }
 
+const saveCompressedImagesFromHtml = (html, spaHtml) => {
+    let compressed = []
+    try {
+        if (html) {
+            const dom = new JSDOM(html)
+            const document = dom.window.document
+            const images = document.querySelectorAll('img')
+
+            images.forEach(image => {
+                compressed.push(image.slice(0, 50) + image.slice(1500, 1550) + image.slice(3000, 3050))
+            })
+        }
+
+        if (spaHtml) {
+            const dom = new JSDOM(spaHtml)
+            const document = dom.window.document
+            const images = document.querySelectorAll('img')
+
+            images.forEach(image => {
+                compressed.push(image.slice(0, 50) + image.slice(1500, 1550) + image.slice(3000, 3050))
+            })
+        }
+
+        return JSON.stringify(compressed)
+    } catch (error) {
+        return ''
+    }
+}
+
+const saveCompressedImages = (images) => {
+    if (!images || !images.length) return ''
+    try {
+        let compressed = []
+        images.forEach(image => {
+            compressed.push(image.slice(0, 50) + image.slice(1500, 1550) + image.slice(3000, 3050))
+        })
+        return JSON.stringify(compressed)
+    } catch (error) {
+        return ''
+    }
+}
+
+const imageIsCompressed = (image, compressed) => {
+    if (!image || !compressed) return ''
+    try {
+        return JSON.parse(compressed).includes(image.slice(0, 50) + image.slice(1500, 1550) + image.slice(3000, 3050))
+    } catch (error) {
+        return ''
+    }
+}
+
 module.exports = {
     encrypt,
     decrypt,
@@ -173,5 +224,8 @@ module.exports = {
     createPreviewImage,
     compressImage,
     compressHtml,
-    decompressHtml
+    decompressHtml,
+    saveCompressedImages,
+    saveCompressedImagesFromHtml,
+    imageIsCompressed
 }

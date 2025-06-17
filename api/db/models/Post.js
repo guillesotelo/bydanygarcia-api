@@ -73,6 +73,9 @@ const postSchema = new mongoose.Schema({
     zSpaHtml: {
         type: Buffer
     },
+    compressedImages: {
+        type: String
+    },
     published: {
         type: Boolean,
         default: false

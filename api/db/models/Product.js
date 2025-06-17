@@ -33,6 +33,9 @@ const productSchema = new mongoose.Schema({
     compressed: {
         type: String
     },
+    compressedImages: {
+        type: String
+    },
     category: {
         type: String
     },

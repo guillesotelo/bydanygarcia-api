@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { Post } = require('../db/models')
-const { verifyToken, createPreviewImage, compressHtml, decompressHtml } = require('../helpers')
+const { verifyToken, createPreviewImage, compressHtml, decompressHtml, saveCompressedImagesFromHtml } = require('../helpers')
 
 //Get all posts
 router.get('/getAll', async (req, res, next) => {
@@ -221,7 +221,8 @@ router.post('/create', verifyToken, async (req, res, next) => {
             previewImage,
             slug: newSlug,
             zHtml: await compressHtml(html),
-            zSpaHtml: await compressHtml(spaHtml)
+            zSpaHtml: await compressHtml(spaHtml),
+            compressedImages: saveCompressedImagesFromHtml(html, spaHtml)
         })
 
         if (!newPost) return res.status(400).json('Error creating post')
@@ -236,8 +237,10 @@ router.post('/create', verifyToken, async (req, res, next) => {
 //Update post Data
 router.post('/update', verifyToken, async (req, res, next) => {
     try {
-        const { _id, slug, html, spaHtml } = req.body
-        const previewImage = await createPreviewImage(req.body)
+        const { _id, slug, html, spaHtml, compressedImages } = req.body
+        const previewImage = imageIsCompressed(data.imageUrl || data.image, compressedImages) ?
+            data.imageUrl || data.image
+            : await createPreviewImage(req.body)
 
         const slugExists = await Post.findOne({ slug })
         const newSlug = slugExists && slugExists._id === _id ? slug + '-copy' : slug
@@ -247,7 +250,8 @@ router.post('/update', verifyToken, async (req, res, next) => {
             previewImage,
             slug: newSlug,
             zHtml: await compressHtml(html),
-            zSpaHtml: await compressHtml(spaHtml)
+            zSpaHtml: await compressHtml(spaHtml),
+            compressedImages: saveCompressedImagesFromHtml(html, spaHtml)
         }
 
         const updated = await Post.findByIdAndUpdate(_id, postData, { returnDocument: "after", useFindAndModify: false })

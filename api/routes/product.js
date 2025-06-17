@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { Product } = require('../db/models')
-const { verifyToken, createPreviewImage, compressImage } = require('../helpers')
+const { verifyToken, createPreviewImage, compressImage, saveCompressedImages, imageIsCompressed } = require('../helpers')
 
 //Get all products
 router.get('/getAll', async (req, res, next) => {
@@ -116,7 +116,8 @@ router.post('/create', verifyToken, async (req, res, next) => {
         const newProduct = await Product.create({
             ...req.body,
             previewImage,
-            images: JSON.stringify(compressedImages)
+            images: JSON.stringify(compressedImages),
+            compressedImages: saveCompressedImages(compressedImages)
         })
         if (!newProduct) return res.status(400).json('Error creating product')
 
@@ -130,18 +131,22 @@ router.post('/create', verifyToken, async (req, res, next) => {
 //Update product Data
 router.post('/update', verifyToken, async (req, res, next) => {
     try {
-        const { _id, images, compress } = req.body
-        const previewImage = compress ? await createPreviewImage(req.body) : images[0] || ''
+        const { _id, images, compressedImages } = req.body
 
-        const compressedImages = compress ?
-            await Promise.all(JSON.parse(images || '[]')
-                .map(async image => await compressImage(image, { w: 800, h: 800, q: 90 })))
-            : images
+        const previewImage = imageIsCompressed(images[0], compressedImages) ? images[0]
+            : await createPreviewImage(req.body)
+
+        const recompressedImages = await Promise.all(JSON.parse(images || '[]')
+            .map(async image => {
+                if (imageIsCompressed(image, compressedImages)) return image
+                else return await compressImage(image, { w: 800, h: 800, q: 90 })
+            }))
 
         let productData = {
             ...req.body,
             previewImage,
-            images: JSON.stringify(compressedImages)
+            images: JSON.stringify(recompressedImages),
+            compressedImages: saveCompressedImages(recompressedImages)
         }
 
         const updated = await Product.findByIdAndUpdate(_id, productData, { returnDocument: "after", useFindAndModify: false })
