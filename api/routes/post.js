@@ -237,9 +237,9 @@ router.post('/create', verifyToken, async (req, res, next) => {
 //Update post Data
 router.post('/update', verifyToken, async (req, res, next) => {
     try {
-        const { _id, slug, html, spaHtml, compressedImages } = req.body
-        const previewImage = imageIsCompressed(data.imageUrl || data.image, compressedImages) ?
-            data.imageUrl || data.image
+        const { _id, slug, html, spaHtml, compressedImages, imageUrl, image } = req.body
+        const previewImage = imageIsCompressed(imageUrl || image, compressedImages) ?
+            imageUrl || image
             : await createPreviewImage(req.body)
 
         const slugExists = await Post.findOne({ slug })
