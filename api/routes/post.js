@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { Post } = require('../db/models')
-const { verifyToken, createPreviewImage, compressHtml, decompressHtml, saveCompressedImagesFromHtml } = require('../helpers')
+const { verifyToken, createPreviewImage, compressHtml, decompressHtml, saveCompressedImagesFromHtml, imageIsCompressed } = require('../helpers')
 
 //Get all posts
 router.get('/getAll', async (req, res, next) => {
