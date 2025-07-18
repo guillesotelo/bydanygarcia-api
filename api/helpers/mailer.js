@@ -3,7 +3,7 @@ const { contactEmail, newPostComment } = require('./emailTemplates');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  host: "smtp.zoho.eu",
   port: 465,
   secure: true,
   auth: {
@@ -12,9 +12,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// transporter.verify().then(() => {
-//   console.log("* Mailing ready *")
-// }).catch(err => console.log('Error logging in with Nodemailer:', err))
+transporter.verify().then(() => {
+  console.log("* Mailing ready *")
+}).catch(error => console.error('Error verifying Nodemailer transporter: ', error))
 
 const sendContactEmail = async (data) => {
   await transporter.sendMail({
