@@ -3,11 +3,7 @@ const express = require('express')
 const router = express.Router()
 const { Subscription, ScrappedImage } = require('../db/models')
 const { sendContactEmail, sendCustomContactEmail, sendNotificationEmail } = require('../helpers/mailer')
-const { encrypt, decrypt } = require('../helpers')
-const { REACT_APP_URL } = process.env
-const jwt = require('jsonwebtoken')
 dotenv.config()
-const { JWT_SECRET } = process.env
 const { verifyToken } = require('../helpers')
 const { scrapePage } = require('../helpers/scraper')
 
@@ -22,7 +18,7 @@ router.post('/subscribe', async (req, res, next) => {
         if (!newSubscription) return res.status(400).send('Bad request')
 
         const emailData = {
-            from: 'An Echo of the Heart',
+            from: 'Dany García',
             to: 'danielasangar92@gmail.com',
             subject: 'New subscription!',
             html: `<h1>Your Mail Community just got bigger! A new member has joined:</h1>
