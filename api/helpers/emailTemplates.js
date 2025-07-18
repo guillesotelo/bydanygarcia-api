@@ -183,7 +183,7 @@ const contactEmail = (data) => {
                     </tr>
                     <tr>
                         <td class="footer" colspan="2">
-                            <p>&copy; 2024 An Echo of the Heart</p>
+                            <p>&copy; 2025 An Echo of the Heart</p>
                         </td>
                     </tr>
                 </table>
@@ -293,7 +293,7 @@ const newPostComment = (data) => {
                     </tr>
                     <tr>
                         <td class="footer" colspan="2">
-                            <p>&copy; 2024 An Echo of the Heart</p>
+                            <p>&copy; 2025 An Echo of the Heart</p>
                         </td>
                     </tr>
                 </table>
