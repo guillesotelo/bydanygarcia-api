@@ -7,7 +7,7 @@ const { verifyToken, createPreviewImage, compressHtml, decompressHtml, saveCompr
 router.get('/getAll', async (req, res, next) => {
     try {
         const { isAdmin } = req.query
-        const filter = '-imageUrl -image -sideImgs -html -spaHtml -zHtml -zSpaHtml -rawData -spaRawData'
+        const filter = '-imageUrl -image -sideImgs -html -spaHtml -zHtml -zSpaHtml -rawData -spaRawData -pdf'
 
         const posts = await Post.find({
             $or: [
@@ -42,7 +42,7 @@ router.get('/getAll', async (req, res, next) => {
 // create image preview for all (run once)
 router.get('/createPreviewForAll', async (req, res, next) => {
     try {
-        const posts = await Post.find().select('-html -spaHtml -zHtml -zSpaHtml -sideImgs -rawData -spaRawData')
+        const posts = await Post.find().select('-html -spaHtml -zHtml -zSpaHtml -sideImgs -rawData -spaRawData -pdf')
 
         for (const post of posts) {
             const imageUrl = post.imageUrl || post.image
@@ -142,7 +142,7 @@ router.get('/getMetadataBySlug', async (req, res, next) => {
     try {
         const { slug } = req.query
         const post = await Post.findOne({ slug })
-            .select('-imageUrl -image -sideImgs -html -spaHtml -zHtml -zSpaHtml -rawData -spaRawData').exec();
+            .select('-imageUrl -image -sideImgs -html -spaHtml -zHtml -zSpaHtml -rawData -spaRawData -pdf').exec();
 
         if (!post) return res.status(404).send('Post not found.')
 

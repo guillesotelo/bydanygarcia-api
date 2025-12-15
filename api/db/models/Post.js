@@ -76,6 +76,12 @@ const postSchema = new mongoose.Schema({
     compressedImages: {
         type: String
     },
+    pdf: {
+        type: Buffer
+    },
+    pdfTitle: {
+        type: String
+    },
     published: {
         type: Boolean,
         default: false
