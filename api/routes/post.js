@@ -2,6 +2,13 @@ const express = require('express')
 const router = express.Router()
 const { Post } = require('../db/models')
 const { verifyToken, createPreviewImage, compressHtml, decompressHtml, saveCompressedImagesFromHtml, imageIsCompressed } = require('../helpers')
+const multer = require('multer')
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10MB safety limit
+    }
+})
 
 //Get all posts
 router.get('/getAll', async (req, res, next) => {
@@ -208,7 +215,7 @@ router.get('/getContentBySlug', async (req, res, next) => {
 })
 
 //Create new post
-router.post('/create', verifyToken, async (req, res, next) => {
+router.post('/create', verifyToken, upload.single('pdf'), async (req, res, next) => {
     try {
         const { slug, html, spaHtml } = req.body
         const previewImage = await createPreviewImage(req.body)
@@ -222,12 +229,13 @@ router.post('/create', verifyToken, async (req, res, next) => {
             slug: newSlug,
             zHtml: await compressHtml(html),
             zSpaHtml: await compressHtml(spaHtml),
-            compressedImages: saveCompressedImagesFromHtml(html, spaHtml)
+            compressedImages: saveCompressedImagesFromHtml(html, spaHtml),
+            pdf: req.file ? req.file.buffer : undefined
         })
 
         if (!newPost) return res.status(400).json('Error creating post')
 
-        res.status(200).json(newPost)
+        res.status(200).json({ _id: newPost._id })
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
@@ -235,7 +243,7 @@ router.post('/create', verifyToken, async (req, res, next) => {
 })
 
 //Update post Data
-router.post('/update', verifyToken, async (req, res, next) => {
+router.post('/update', verifyToken, upload.single('pdf'), async (req, res, next) => {
     try {
         const { _id, slug, html, spaHtml, compressedImages, imageUrl, image } = req.body
         const previewImage = imageIsCompressed(imageUrl || image, compressedImages) ?
@@ -254,10 +262,12 @@ router.post('/update', verifyToken, async (req, res, next) => {
             compressedImages: saveCompressedImagesFromHtml(html, spaHtml)
         }
 
+        if (req.file) postData.pdf = req.file.buffer
+
         const updated = await Post.findByIdAndUpdate(_id, postData, { returnDocument: "after", useFindAndModify: false })
         if (!updated) return res.status(404).send('Error updating post.')
 
-        res.status(200).json(updated)
+        res.status(200).json({ _id: updated._id })
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
