@@ -197,6 +197,12 @@ router.get('/getContentBySlug', async (req, res, next) => {
         const post = await Post.findOne({ slug })
             .select('-previewImage -html -spaHtml -image -imageUrl -rawData -spaRawData').exec()
 
+        if (post._id && post.pdf && post.type === 'PDF') {
+            res.setHeader('Content-Type', 'application/pdf')
+            res.setHeader('Content-Disposition', 'inline')
+            return res.send(post.pdf) // Buffer → stream
+        }
+        
         const postData = {
             ...post._doc,
             html: await decompressHtml(post.zHtml),
