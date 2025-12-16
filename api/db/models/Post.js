@@ -82,6 +82,12 @@ const postSchema = new mongoose.Schema({
     pdfTitle: {
         type: String
     },
+    pdfSize: {
+        type: String | Number
+    },
+    pdfMime: {
+        type: String
+    },
     published: {
         type: Boolean,
         default: false

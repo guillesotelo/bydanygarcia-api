@@ -244,64 +244,118 @@ router.get('/getPdfBlobBySlug', async (req, res, next) => {
 })
 
 //Create new post
-router.post('/create', verifyToken, upload.single('pdf'), async (req, res, next) => {
+router.post('/create', verifyToken, upload.single('pdf'), async (req, res) => {
     try {
-        const { slug, html, spaHtml } = req.body
+        const {
+            slug,
+            title,
+            spaTitle,
+            description,
+            html,
+            spaHtml,
+            category,
+            type,
+            published,
+            pdfTitle
+        } = req.body
+
+        if (type === 'PDF' && !req.file) {
+            return res.status(400).json('PDF file is required')
+        }
+
         const previewImage = await createPreviewImage(req.body)
 
         const slugExists = await Post.findOne({ slug })
-        const newSlug = slugExists ? slug + '-copy' : slug
+        const newSlug = slugExists ? `${slug}-copy` : slug
 
         const newPost = await Post.create({
-            ...req.body,
-            previewImage,
+            title,
+            spaTitle,
+            description,
             slug: newSlug,
-            zHtml: await compressHtml(html),
-            zSpaHtml: await compressHtml(spaHtml),
+            type,
+            published: published === 'true',
+            category: category ? JSON.parse(category) : null,
+            previewImage,
+            zHtml: html ? await compressHtml(html) : null,
+            zSpaHtml: spaHtml ? await compressHtml(spaHtml) : null,
             compressedImages: saveCompressedImagesFromHtml(html, spaHtml),
-            pdf: req.file ? req.file.buffer : undefined
-        })
 
-        if (!newPost) return res.status(400).json('Error creating post')
+            // PDF-specific
+            pdf: req.file?.buffer,
+            pdfTitle: req.file?.originalname || pdfTitle,
+            pdfMime: req.file?.mimetype,
+            pdfSize: req.file?.size
+        })
 
         res.status(200).json({ _id: newPost._id })
     } catch (err) {
-        console.error('Something went wrong!', err)
-        res.send(500).send('Server Error')
+        console.error(err)
+        res.status(500).send('Server Error')
     }
 })
 
+
 //Update post Data
-router.post('/update', verifyToken, upload.single('pdf'), async (req, res, next) => {
+router.post('/update', verifyToken, upload.single('pdf'), async (req, res) => {
     try {
-        const { _id, slug, html, spaHtml, compressedImages, imageUrl, image } = req.body
-        const previewImage = imageIsCompressed(imageUrl || image, compressedImages) ?
-            imageUrl || image
-            : await createPreviewImage(req.body)
+        const {
+            _id,
+            slug,
+            title,
+            spaTitle,
+            description,
+            html,
+            spaHtml,
+            category,
+            published,
+            pdfTitle
+        } = req.body
+
+        const previewImage = await createPreviewImage(req.body)
 
         const slugExists = await Post.findOne({ slug })
-        const newSlug = slugExists && slugExists._id === _id ? slug + '-copy' : slug
+        const newSlug =
+            slugExists && slugExists._id.toString() !== _id ? `${slug}-copy` : slug
 
-        let postData = {
-            ...req.body,
-            previewImage,
+        const updateData = {
+            title,
+            spaTitle,
+            description,
             slug: newSlug,
-            zHtml: await compressHtml(html),
-            zSpaHtml: await compressHtml(spaHtml),
+            published: published === 'true',
+            category: category ? JSON.parse(category) : null,
+            previewImage,
+            zHtml: html ? await compressHtml(html) : null,
+            zSpaHtml: spaHtml ? await compressHtml(spaHtml) : null,
             compressedImages: saveCompressedImagesFromHtml(html, spaHtml)
         }
 
-        if (req.file) postData.pdf = req.file.buffer
+        // Replace PDF only if a new one is uploaded
+        if (req.file) {
+            updateData.pdf = req.file.buffer
+            updateData.pdfTitle = req.file.originalname || pdfTitle
+            updateData.pdfMime = req.file.mimetype
+            updateData.pdfSize = req.file.size
+        }
 
-        const updated = await Post.findByIdAndUpdate(_id, postData, { returnDocument: "after", useFindAndModify: false })
-        if (!updated) return res.status(404).send('Error updating post.')
+        const updated = await Post.findByIdAndUpdate(
+            _id,
+            updateData,
+            { new: true }
+        )
+
+        if (!updated) {
+            return res.status(404).send('Error updating post')
+        }
 
         res.status(200).json({ _id: updated._id })
     } catch (err) {
-        console.error('Something went wrong!', err)
-        res.send(500).send('Server Error')
+        console.error(err)
+        res.status(500).send('Server Error')
     }
 })
+
 
 //Update post Data
 router.post('/remove', verifyToken, async (req, res, next) => {
