@@ -288,7 +288,7 @@ router.post('/create', verifyToken, upload.single('pdf'), async (req, res) => {
             pdfSize: req.file?.size
         })
 
-        res.status(200).json({ _id: newPost._id })
+        res.status(200).json({ _id: newPost._id, slug: newPost.slug })
     } catch (err) {
         console.error(err)
         res.status(500).send('Server Error')
@@ -349,7 +349,7 @@ router.post('/update', verifyToken, upload.single('pdf'), async (req, res) => {
             return res.status(404).send('Error updating post')
         }
 
-        res.status(200).json({ _id: updated._id })
+        res.status(200).json({ _id: updated._id, slug: updated.slug })
     } catch (err) {
         console.error(err)
         res.status(500).send('Server Error')
