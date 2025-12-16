@@ -202,7 +202,7 @@ router.get('/getContentBySlug', async (req, res, next) => {
             res.setHeader('Content-Disposition', 'inline')
             return res.send(post.pdf) // Buffer → stream
         }
-        
+
         const postData = {
             ...post._doc,
             html: await decompressHtml(post.zHtml),
@@ -214,6 +214,29 @@ router.get('/getContentBySlug', async (req, res, next) => {
         if (!post) return res.status(404).send('Post not found.')
 
         res.status(200).json(postData)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
+// Stream PDF blob by Slug
+router.get('/getPdfBlobBySlug', async (req, res, next) => {
+    try {
+        const { slug } = req.query
+        const post = await Post.findOne({ slug, type: 'PDF' }).select('pdf pdfTitle')
+
+        if (!post || !post.pdf) {
+            return res.status(404).send('PDF not found')
+        }
+
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `inline; filename="${post.pdfTitle}.pdf"`,
+            'Content-Length': post.pdf.length
+        })
+
+        res.send(post.pdf)
     } catch (err) {
         console.error('Something went wrong!', err)
         res.send(500).send('Server Error')
