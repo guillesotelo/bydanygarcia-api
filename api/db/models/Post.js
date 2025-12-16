@@ -88,6 +88,12 @@ const postSchema = new mongoose.Schema({
     pdfMime: {
         type: String
     },
+    language: {
+        type: String
+    },
+    secondarySlug: {
+        type: String
+    },
     published: {
         type: Boolean,
         default: false
