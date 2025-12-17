@@ -55,7 +55,8 @@ router.get('/getAllPdfs', async (req, res, next) => {
             $or: [
                 { removed: false },
                 { removed: { $exists: false } }
-            ]
+            ],
+            type: 'PDF'
         })
             .select(filter)
             .sort({ createdAt: -1 })
