@@ -46,6 +46,29 @@ router.get('/getAll', async (req, res, next) => {
     }
 })
 
+//Get all pdf posts
+router.get('/getAllPdfs', async (req, res, next) => {
+    try {
+        const filter = '-imageUrl -image -sideImgs -html -spaHtml -zHtml -zSpaHtml -rawData -spaRawData -pdf'
+
+        const posts = await Post.find({
+            $or: [
+                { removed: false },
+                { removed: { $exists: false } }
+            ]
+        })
+            .select(filter)
+            .sort({ createdAt: -1 })
+
+        if (!posts) return res.status(404).send('No PDFs found.')
+
+        res.status(200).json(posts)
+    } catch (err) {
+        console.error('Something went wrong!', err)
+        res.send(500).send('Server Error')
+    }
+})
+
 // create image preview for all (run once)
 router.get('/createPreviewForAll', async (req, res, next) => {
     try {
