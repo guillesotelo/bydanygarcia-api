@@ -6,7 +6,7 @@ const multer = require('multer')
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: {
-        fileSize: 10 * 1024 * 1024 // 10MB safety limit
+        fileSize: 16 * 1024 * 1024 // 10MB safety limit
     }
 })
 
@@ -333,7 +333,8 @@ router.post('/update', verifyToken, upload.single('pdf'), async (req, res) => {
             spaHtml,
             category,
             published,
-            pdfTitle
+            pdfTitle,
+            previewUpdated
         } = req.body
 
         const previewImage = await createPreviewImage(req.body)
@@ -354,6 +355,8 @@ router.post('/update', verifyToken, upload.single('pdf'), async (req, res) => {
             zSpaHtml: spaHtml ? await compressHtml(spaHtml) : null,
             compressedImages: saveCompressedImagesFromHtml(html, spaHtml)
         }
+
+        if(!previewUpdated) delete updateData.previewImage
 
         // Replace PDF only if a new one is uploaded
         if (req.file) {

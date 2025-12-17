@@ -40,7 +40,7 @@ const delay = (time) => {
 
 const createPreviewImage = async (data) => {
     try {
-        const image = data ? data.images ? JSON.parse(data.images || '[]')[0] : data.imageUrl || data.image : null
+        const image = data ? data.images ? JSON.parse(data.images || '[]')[0] : data.imageUrl || data.image || data.previewImage : null
         if (!image) return ''
         if (image.length < 3000) return image
 
